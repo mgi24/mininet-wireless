@@ -24,15 +24,19 @@ def myNetwork():
     info("*** Menghubungkan switch ke host\n")
     net.addLink(s1, h1)
 
-
-
-
     info("*** Menambahkan access point\n")
-    ap1 = net.addAccessPoint('ap1', ssid="simplewifi", mode="g", channel="1")
+    ap1 = net.addAccessPoint('ap1', ssid="simplewifi", mode="g", channel="1", position='50,50,0')
     
     info("*** Menghubungkan switch ke access point\n")
     net.addLink(s1, ap1)
 
+    info("*** Menambahkan station\n")
+    sta1 = net.addStation('sta1',ip = '0.0.0.0' , position='60,50,0')
+
+    
+    info("*** Menghubungkan access point ke host wireless\n")
+    net.addLink(ap1, sta1)
+ 
     
     
 
@@ -44,6 +48,7 @@ def myNetwork():
     c0.start()
     s1.start([c0])
     ap1.start([c0])
+    sta1.cmd('dhclient sta1-wlan0')    
     h1.cmd('dhclient h1-eth0')
     h1.cmd("echo 'nameserver 192.168.1.1' > /etc/resolv.conf")
 
