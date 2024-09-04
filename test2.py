@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-'This example creates a simple network topology with 1 AP and 2 stations'
+'This example shows how to work with authentication'
 
-import sys
-
+from mn_wifi.link import wmediumd
 from mininet.log import setLogLevel, info
 from mn_wifi.cli import CLI
 from mn_wifi.net import Mininet_wifi
@@ -11,17 +10,15 @@ from mn_wifi.net import Mininet_wifi
 
 def topology():
     "Create a network."
-    net = Mininet_wifi()
+    net = Mininet_wifi(link=wmediumd)
 
     info("*** Creating nodes\n")
-
-
-    ap1 = net.addAccessPoint('ap1', ssid="simpletopo", mode="g",
-                             channel="5", )
-    sta1 = net.addStation('sta1', ip = '192.168.1.102/24')
-    sta2 = net.addStation('sta2', ip = '192.168.1.105/24')
+    sta1 = net.addStation('sta1', ip = '192.168.1.120/24')
+    sta2 = net.addStation('sta2', ip = '192.168.1.122/24')
+    ap1 = net.addAccessPoint('ap1', ssid="simplewifi", mode="g", channel="1",
+                             
+                             failMode="standalone")
     c0 = net.addController('c0')
-
     info("*** Configuring nodes\n")
     net.configureNodes()
 
@@ -31,9 +28,7 @@ def topology():
 
     info("*** Starting network\n")
     net.build()
-    c0.start()
     ap1.start([c0])
-
 
     info("*** Running CLI\n")
     CLI(net)
