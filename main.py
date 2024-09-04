@@ -22,14 +22,16 @@ def topology():
 
     sta1 = net.addStation('sta1', ip = '192.168.1.120/24',  position = '100.0,60.0,0.0')
     sta2 = net.addStation('sta2', ip = '192.168.1.122/24', position = '0.0,60.0,0.0')
+
+
     ap1 = net.addAccessPoint('ap1', ssid="simplewifi", mode="g", channel="1", position = '20.0,60.0,0.0')
     c0 = net.addController('c0')
     info("*** Configuring nodes\n")
     net.configureNodes()
 
     info("*** Associating Stations\n")
-    net.addLink(sta1, ap1)
-    net.addLink(sta2, ap1)
+    #net.addLink(sta1, ap1)
+    #net.addLink(sta2, ap1)
     net.addLink(s1, ap1)
     net.addLink(s1, h1)
     net.addLink(s1, h2)
@@ -39,11 +41,8 @@ def topology():
 
     info("*** Starting network\n")
     net.build()
-    c0.start()
     ap1.start([c0])
     s1.start([c0])
-
-    ap1.cmd('echo 1 > /proc/sys/net/ipv4/ip_forward')
 
     info("*** Running CLI\n")
     CLI(net)
