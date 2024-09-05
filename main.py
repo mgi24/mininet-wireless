@@ -23,7 +23,7 @@ def topology():
     sta1 = net.addStation('sta1', ip = '0.0.0.0',  position = '60.0,60.0,0.0')
     sta2 = net.addStation('sta2', ip = '0.0.0.0', position = '0.0,60.0,0.0')
     ap1 = net.addAccessPoint('ap1', ssid="simplewifi", mode="g", channel="1", position = '20.0,60.0,0.0')
-    net.setPropagationModel(model="logDistance", exp=4.5)
+    net.setPropagationModel(model="logDistance", exp=3.0)
     
     c0 = net.addController('c0')
     
@@ -52,8 +52,10 @@ def topology():
     ap1.cmd('echo 1 > /proc/sys/net/ipv4/ip_forward')
     h1.cmd('dhclient h1-eth0')
     h2.cmd('dhclient h2-eth0')
-    #sta1.cmd('dhclient sta1-wlan0')
-    #sta2.cmd('dhclient sta2-wlan0')
+
+    info('*** leasing IP from DHCP Server, if too long comment below!\n')
+    sta1.cmd('dhclient sta1-wlan0')
+    sta2.cmd('dhclient sta2-wlan0')
 
     info('*** Checking IP address host\n')
     print(f"IP h1:{h1.cmd('hostname -I')}")
@@ -61,7 +63,7 @@ def topology():
     print(f"IP sta1:{sta1.cmd('hostname -I')}")
     print(f"IP sta2:{sta2.cmd('hostname -I')}")
     info('*** Changing DNS server\n')
-    #h1.cmd("echo 'nameserver 192.168.1.1' > /etc/resolv.conf")
+    h1.cmd("echo 'nameserver 192.168.1.1' > /etc/resolv.conf")
     
     
 
