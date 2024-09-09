@@ -1,0 +1,105 @@
+{
+    "application": {
+        "apType": "ovs",
+        "authentication": "none",
+        "dpctl": "",
+        "enableWmediumd": "0",
+        "ipBase": "10.0.0.0/8",
+        "mode": "g",
+        "netflow": {
+            "nflowAddId": "0",
+            "nflowTarget": "",
+            "nflowTimeout": "600"
+        },
+        "openFlowVersions": {
+            "ovsOf10": "1",
+            "ovsOf11": "0",
+            "ovsOf12": "0",
+            "ovsOf13": "0"
+        },
+        "passwd": "",
+        "sflow": {
+            "sflowHeader": "128",
+            "sflowPolling": "30",
+            "sflowSampling": "400",
+            "sflowTarget": ""
+        },
+        "startCLI": "0",
+        "switchType": "ovs",
+        "terminalType": "xterm"
+    },
+    "aps": [
+        {
+            "number": "1",
+            "opts": {
+                "apIP": "",
+                "apType": "ovs",
+                "authentication": "none",
+                "channel": "36",
+                "controllers": [
+                    "c0"
+                ],
+                "hostname": "ap1",
+                "mode": "n",
+                "netflow": "0",
+                "nodeNum": 1,
+                "passwd": "",
+                "range": "default",
+                "sflow": "0",
+                "ssid": "ap1-ssid",
+                "wlans": 1
+            },
+            "x": "274.0",
+            "y": "183.0"
+        }
+    ],
+    "controllers": [
+        {
+            "opts": {
+                "controllerProtocol": "tcp",
+                "controllerType": "ovsc",
+                "hostname": "c0",
+                "remoteIP": "127.0.0.1",
+                "remotePort": 6653
+            },
+            "x": "601.0",
+            "y": "396.0"
+        }
+    ],
+    "hosts": [],
+    "links": [],
+    "stations": [
+        {
+            "number": "1",
+            "opts": {
+                "hostname": "sta1",
+                "ip": "19.168.1.100/24",
+                "mode": "g",
+                "nodeNum": 1,
+                "range": "default",
+                "sched": "station",
+                "wlans": 1,
+                "wpans": 0
+            },
+            "x": "188.0",
+            "y": "144.0"
+        },
+        {
+            "number": "2",
+            "opts": {
+                "hostname": "sta2",
+                "ip": "192.168.1.101/24",
+                "mode": "g",
+                "nodeNum": 2,
+                "range": "default",
+                "sched": "station",
+                "wlans": 1,
+                "wpans": 0
+            },
+            "x": "200.0",
+            "y": "221.0"
+        }
+    ],
+    "switches": [],
+    "version": "2"
+}
