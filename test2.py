@@ -25,8 +25,8 @@ def pinghost(net, host1, host2):
         h2_ip_list = h2_ip_output.split()
         
         if h1_ip_list and h2_ip_list:
-            h1_ip = h1_ip_list[0]
-            h2_ip = h2_ip_list[0]
+            h1_ip = [ip for ip in h1_ip_list if ':' not in ip][0]
+            h2_ip = [ip for ip in h2_ip_list if ':' not in ip][0]
             result = h1.cmd(f'ping -c 4 {h2_ip}')
         else:
             print("Failed to retrieve IP for h1 or h2")
@@ -43,69 +43,159 @@ class CustomCLI(CLI):
         host1 = args[0]
         host2 = args[1]
         pinghost(self.mn, host1, host2)
-    
-    def do_speedtest(self, line):
-        "Run speedtest on all STAs"
-        sta_list = self.mn.stations
-        if sta_list:
-            print("removing previous run json...")
-            sta_list[0].cmd('rm -f speedtest*')
-            print("starting speedtest...")
 
-            for i, sta in enumerate(sta_list):
-                if i == len(sta_list) - 1:
-                    sta.cmd(f"speedtest -s 33207 --format json > speedtest{sta.name}.json")
-                else:
-                    sta.cmd(f"speedtest -s 33207 --format json > speedtest{sta.name}.json &")
-            
-            print("waiting for speedtest to finish...")
-            time.sleep(10)
-            print("formating json to be more readable...")
-
-            upload_speeds = []
-            download_speeds = []
-
-            for sta in sta_list:
-                result_file = f'speedtest{sta.name}.json'
-                with open(result_file) as f:
-                    data = json.load(f)
-                    data['download']['bandwidth'] *= 8
-                    data['upload']['bandwidth'] *= 8
-                    upload_speeds.append(data['upload']['bandwidth'])
-                    download_speeds.append(data['download']['bandwidth'])
-                    data_str = json.dumps(data, indent=4)
-                    print(f"Speedtest result on {sta.name}:")
-                    print(data_str)
-
-            total_upload_speed = sum(upload_speeds)
-            total_download_speed = sum(download_speeds)
-            print(f"Total upload speed: {total_upload_speed}")
-            print(f"Total download speed: {total_download_speed}")
-            
-
-            plt.figure()
-            plt.plot(upload_speeds, label='Upload Speed')
-            plt.plot(download_speeds, label='Download Speed')
-            plt.axhline(y=total_upload_speed, color='r', linestyle='--', label='Total Upload Speed')
-            plt.axhline(y=total_download_speed, color='g', linestyle='--', label='Total Download Speed')
-            plt.xlabel('Station')
-            plt.ylabel('Speed (Mbps)')
-            plt.title('Upload and Download Speeds')
-            plt.legend()
-            plt.show()
-
-            
+    def do_checkarg(self, line):
+        "Check the number of arguments provided"
+        args = line.split()
+        num_args = len(args)
+        print(f"Number of arguments provided: {num_args}")
+        if num_args == 0:
+            print("No arg")
         else:
-            print("No STAs found")
+            for arg in args:
+                print(arg)
+
+
+    def do_speedtest(self, line):
+        sta_list = self.mn.stations
+        args = line.split()
+        num_args = len(args)
+        if num_args > 0:
+            for arg in args:
+                print("removing previous run json...")
+                sta_list[0].cmd('rm -f speedtest*')
+                print("starting speedtest...")
+                sta = self.mn.get(arg)
+                if sta:
+                    sta.cmd(f"speedtest -s 33207 --format json > speedtest{sta.name}.json")
+                    print(f"result for {sta.name}")
+                    result_file = f'speedtest{sta.name}.json'
+                    with open(result_file) as f:
+                        data = json.load(f)
+                        data['download']['bandwidth'] *= 8
+                        data['upload']['bandwidth'] *= 8
+                        data_str = json.dumps(data, indent=4)
+                        print(f"Speedtest result on {sta.name}:")
+                        print(data_str)
+                        print(f"Upload Speed : {data['upload']['bandwidth']/1000000} Mbps")
+                        print(f"Download Speed : {data['download']['bandwidth']/1000000} Mbps")
+
+                else:
+                    print(f"Host {arg} not found")
+
+                
+
+
+        else:
+            "Run speedtest on all STAs"
+            
+            if sta_list:
+                print("removing previous run json...")
+                sta_list[0].cmd('rm -f speedtest*')
+                print("starting speedtest...")
+
+                for i, sta in enumerate(sta_list):
+                    if i == len(sta_list) - 1:
+                        sta.cmd(f"speedtest -s 33207 --format json > speedtest{sta.name}.json")
+                    else:
+                        sta.cmd(f"speedtest -s 33207 --format json > speedtest{sta.name}.json &")
+                        
+                
+                print("waiting for speedtest to finish...")
+                time.sleep(10)
+                print("formating json to be more readable...")
+
+                upload_speeds = []
+                download_speeds = []
+
+                for sta in sta_list:
+                    result_file = f'speedtest{sta.name}.json'
+                    with open(result_file) as f:
+                        data = json.load(f)
+                        data['download']['bandwidth'] *= 8
+                        data['upload']['bandwidth'] *= 8
+                        upload_speeds.append(data['upload']['bandwidth'])
+                        download_speeds.append(data['download']['bandwidth'])
+                        data_str = json.dumps(data, indent=4)
+                        print(f"Speedtest result on {sta.name}:")
+                        print(data_str)
+
+                total_upload_speed = sum(upload_speeds)
+                total_download_speed = sum(download_speeds)
+                print(f"Total upload speed: {total_upload_speed}")
+                print(f"Total download speed: {total_download_speed}")
+                
+
+                upload_speeds_mbps = [speed / 1000000 for speed in upload_speeds]
+                download_speeds_mbps = [speed / 1000000 for speed in download_speeds]
+                total_upload_speed_mbps = total_upload_speed / 1000000
+                total_download_speed_mbps = total_download_speed / 1000000
+
+                plt.figure()
+                plt.plot(upload_speeds_mbps, label='Upload Speed')
+                plt.plot(download_speeds_mbps, label='Download Speed')
+                plt.axhline(y=total_upload_speed_mbps, color='r', linestyle='--', label='Total Upload Speed')
+                plt.axhline(y=total_download_speed_mbps, color='g', linestyle='--', label='Total Download Speed')
+                plt.xlabel('Station')
+                plt.ylabel('Speed (Mbps)')
+                plt.title('Upload and Download Speeds')
+                plt.legend()
+                plt.show()
+
+                
+            else:
+                print("No STAs found")
         
+
     def do_stalist(self, line):
         "Print all available STAs"
         sta_list = self.mn.stations
         if sta_list:
             for sta in sta_list:
-                print(sta.name)
+                ip_output = sta.cmd('hostname -I')
+                ip_list = ip_output.split()
+                ipv4_list = [ip for ip in ip_list if ':' not in ip]
+                if ipv4_list:
+                    print(f"IP {sta.name}: {ipv4_list[0]}")
+                else:
+                    print(f"Failed to retrieve IPv4 for {sta.name}")
         else:
             print("No STAs found")
+   
+
+    def do_bandwidth(self, line):
+        "Run bandwidth test between two STAs"
+        args = line.split()
+        if len(args) != 2:
+            print("Usage: bandwidth <sta1> <sta2>")
+            return
+        sta1 = args[0]
+        sta2 = args[1]
+
+        sta1 = self.mn.get(sta1)
+        sta2 = self.mn.get(sta2)
+
+        if sta1 and sta2:
+            h1_ip_output = sta1.cmd('hostname -I')
+            h1_ip_list = h1_ip_output.split()
+            h2_ip_output = sta2.cmd('hostname -I')
+            h2_ip_list = h2_ip_output.split()
+
+            if h1_ip_list and h2_ip_list:
+                h1_ipv4 = [ip for ip in h1_ip_list if ':' not in ip][0]
+                h2_ipv4 = [ip for ip in h2_ip_list if ':' not in ip][0]
+                sta1.cmd('iperf -s &')
+                print(f"Upload test from {sta1.name} to {sta2.name}")
+                print(sta2.cmd(f'iperf -c {h1_ipv4} -t 10 -i 1 -R'))
+                print(f"Download test from {sta2.name} to {sta1.name}")
+                print(sta2.cmd(f'iperf -c {h1_ipv4} -t 10 -i 1'))
+            else:
+                print("Failed to retrieve IPv4 for h1 or h2")
+        else:
+            print(f"Host {sta1} or {sta2} not found")
+        sta1.cmd('killall iperf')
+ 
+    
         
             
         
@@ -139,7 +229,7 @@ def topology():
         print(f"Added {sta_name} at position {sta_position}")
     
     info("*** Simulating Interference\n")
-    net.setPropagationModel(model="logDistance", exp=4.5)
+    net.setPropagationModel(model="logDistance", exp=3.0)
 
     h1 = net.addHost('h1', ip = '0.0.0.0')
     h2 = net.addHost('h2', ip = '0.0.0.0')
