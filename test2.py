@@ -3,7 +3,7 @@
 'This example creates a simple network topology with 1 AP and 2 stations'
 
 import sys
-
+import pandas as pd
 from mininet.log import setLogLevel, info
 from mn_wifi.cli import CLI
 from mn_wifi.net import Mininet_wifi
@@ -107,6 +107,7 @@ class CustomCLI(CLI):
 
                 upload_speeds = []
                 download_speeds = []
+                excel_data = []
 
                 for sta in sta_list:
                     result_file = f'speedtest{sta.name}.json'
@@ -119,6 +120,51 @@ class CustomCLI(CLI):
                         data_str = json.dumps(data, indent=4)
                         print(f"Speedtest result on {sta.name}:")
                         print(data_str)
+                        excel_result = {
+                            "station": sta.name,
+                            "timestamp": data['timestamp'],
+                            "ping jitter": data['ping']['jitter'],
+                            "ping latency": data['ping']['latency'],
+                            "ping low": data['ping']['low'],
+                            "ping high": data['ping']['high'],
+                            "download bandwidth": data['download']['bandwidth'],
+                            "download bytes": data['download']['bytes'],
+                            "download elapsed": data['download']['elapsed'],
+                            "download latency iqm": data['download']['latency']['iqm'],
+                            "download latency low": data['download']['latency']['low'],
+                            "download latency high": data['download']['latency']['high'],
+                            "download latency jitter": data['download']['latency']['jitter'],
+                            "upload bandwidth": data['upload']['bandwidth'],
+                            "upload bytes": data['upload']['bytes'],
+                            "upload elapsed": data['upload']['elapsed'],
+                            "upload latency iqm": data['upload']['latency']['iqm'],
+                            "upload latency low": data['upload']['latency']['low'],
+                            "upload latency high": data['upload']['latency']['high'],
+                            "upload latency jitter": data['upload']['latency']['jitter'],
+                            "packet loss": data['packetLoss'],
+                            "isp": data['isp'],
+                            "interface internal ip": data['interface']['internalIp'],
+                            "interface name": data['interface']['name'],
+                            "interface mac": data['interface']['macAddr'],
+                            "interface is vpn": data['interface']['isVpn'],
+                            "interface external ip": data['interface']['externalIp'],
+                            "server id": data['server']['id'],
+                            "server host": data['server']['host'],
+                            "server port": data['server']['port'],
+                            "server name": data['server']['name'],
+                            "server location": data['server']['location'],
+                            "server country": data['server']['country'],
+                            "result id": data['result']['id'],
+                            "result url": data['result']['url'],
+                            "result persisted": data['result']['persisted']
+
+                        }
+                        excel_data.append(excel_result)
+                # Create a pandas dataframe
+                df = pd.DataFrame(excel_data)
+                # Save to excel
+                output_file = "/home/mamad/Documents/speedtest_helmi.xlsx"
+                df.to_excel(output_file, index=False)
 
                 total_upload_speed = sum(upload_speeds)
                 total_download_speed = sum(download_speeds)
