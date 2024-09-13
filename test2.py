@@ -67,7 +67,7 @@ class CustomCLI(CLI):
                 print("starting speedtest...")
                 sta = self.mn.get(arg)
                 if sta:
-                    sta.cmd(f"speedtest -s 33207 --format json > speedtest{sta.name}.json")
+                    sta.cmd(f"speedtest -s 33207 --format json > /home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json")
                     print(f"result for {sta.name}")
                     result_file = f'speedtest{sta.name}.json'
                     with open(result_file) as f:
@@ -96,9 +96,9 @@ class CustomCLI(CLI):
 
                 for i, sta in enumerate(sta_list):
                     if i == len(sta_list) - 1:
-                        sta.cmd(f"speedtest -s 33207 --format json > speedtest{sta.name}.json")
+                        sta.cmd(f"speedtest -s 33207 --format json > /home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json")
                     else:
-                        sta.cmd(f"speedtest -s 33207 --format json > speedtest{sta.name}.json &")
+                        sta.cmd(f"speedtest -s 33207 --format json > /home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json &")
                         
                 
                 print("waiting for speedtest to finish...")
@@ -110,7 +110,7 @@ class CustomCLI(CLI):
                 excel_data = []
 
                 for sta in sta_list:
-                    result_file = f'speedtest{sta.name}.json'
+                    result_file = f'/home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json'
                     with open(result_file) as f:
                         data = json.load(f)
                         data['download']['bandwidth'] *= 8
@@ -163,7 +163,7 @@ class CustomCLI(CLI):
                 # Create a pandas dataframe
                 df = pd.DataFrame(excel_data)
                 # Save to excel
-                output_file = "/home/mamad/Documents/speedtest_helmi.xlsx"
+                output_file = "/home/mamad/Documents/mininetlab/result/speedtest_helmi.xlsx"
                 df.to_excel(output_file, index=False)
 
                 total_upload_speed = sum(upload_speeds)
