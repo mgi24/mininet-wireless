@@ -63,11 +63,12 @@ class CustomCLI(CLI):
         if num_args > 0:
             for arg in args:
                 print("removing previous run json...")
-                sta_list[0].cmd('rm -f speedtest*')
+                sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result && rm -f speedtest*')
+
                 print("starting speedtest...")
                 sta = self.mn.get(arg)
                 if sta:
-                    sta.cmd(f"speedtest -s 33207 --format json > /home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json")
+                    sta.cmd(f"speedtest -s 13777 --format json > /home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json")
                     print(f"result for {sta.name}")
                     result_file = f'speedtest{sta.name}.json'
                     with open(result_file) as f:
@@ -91,76 +92,170 @@ class CustomCLI(CLI):
             
             if sta_list:
                 print("removing previous run json...")
-                sta_list[0].cmd('rm -f speedtest*')
+                sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result && rm -f speedtest*')
                 print("starting speedtest...")
+                
+                
+                pids = []
 
                 for i, sta in enumerate(sta_list):
-                    if i == len(sta_list) - 1:
-                        sta.cmd(f"speedtest -s 33207 --format json > /home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json")
-                    else:
-                        sta.cmd(f"speedtest -s 33207 --format json > /home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json &")
-                        
-                
-                print("waiting for speedtest to finish...")
-                time.sleep(10)
+        
+                    if i % 4 == 0:
+                        server_port = 13777
+                    elif i % 4 == 1:
+                        server_port = 13825
+                    elif i % 4 == 2:
+                        server_port = 33207
+                    elif i % 4 == 3:
+                        server_port = 36813
+                    
+
+                    output = sta.cmd(f"speedtest -s {server_port} --format json > /home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json & echo $!")
+                    
+                    pid = output.strip()
+                    time.sleep(0.1)
+                    print(sta.name,pid)
+                    pid = pid.split()[1]
+                    print(sta.name,pid)
+                    pids.append(pid)
+                    
+                    
+                while(True):
+                    if not pids:
+                        break
+                    for pid in pids:
+                        check_pid = sta_list[0].cmd(f"ps -p {pid}")
+                        if pid not in check_pid:
+                            print(f"PID {pid} done testing")
+                            pids.remove(pid)
+
+
                 print("formating json to be more readable...")
 
                 upload_speeds = []
                 download_speeds = []
                 excel_data = []
+                sta_error = 0
+                time.sleep(60)
 
                 for sta in sta_list:
                     result_file = f'/home/mamad/Documents/mininetlab/result/speedtest{sta.name}.json'
                     with open(result_file) as f:
                         data = json.load(f)
-                        data['download']['bandwidth'] *= 8
-                        data['upload']['bandwidth'] *= 8
-                        upload_speeds.append(data['upload']['bandwidth'])
-                        download_speeds.append(data['download']['bandwidth'])
+
+                        if 'error' in data:
+                            upload = 0
+                            download = 0
+                        else:
+                            data['upload']['bandwidth'] *= 8
+                            data['download']['bandwidth'] *= 8
+                            upload = data['download']['bandwidth']
+                            download = data['upload']['bandwidth']
+        
+                        upload_speeds.append(upload)
+                        download_speeds.append(download)
                         data_str = json.dumps(data, indent=4)
                         print(f"Speedtest result on {sta.name}:")
                         print(data_str)
-                        excel_result = {
-                            "station": sta.name,
-                            "timestamp": data['timestamp'],
-                            "ping jitter": data['ping']['jitter'],
-                            "ping latency": data['ping']['latency'],
-                            "ping low": data['ping']['low'],
-                            "ping high": data['ping']['high'],
-                            "download bandwidth": data['download']['bandwidth'],
-                            "download bytes": data['download']['bytes'],
-                            "download elapsed": data['download']['elapsed'],
-                            "download latency iqm": data['download']['latency']['iqm'],
-                            "download latency low": data['download']['latency']['low'],
-                            "download latency high": data['download']['latency']['high'],
-                            "download latency jitter": data['download']['latency']['jitter'],
-                            "upload bandwidth": data['upload']['bandwidth'],
-                            "upload bytes": data['upload']['bytes'],
-                            "upload elapsed": data['upload']['elapsed'],
-                            "upload latency iqm": data['upload']['latency']['iqm'],
-                            "upload latency low": data['upload']['latency']['low'],
-                            "upload latency high": data['upload']['latency']['high'],
-                            "upload latency jitter": data['upload']['latency']['jitter'],
-                            "packet loss": data['packetLoss'],
-                            "isp": data['isp'],
-                            "interface internal ip": data['interface']['internalIp'],
-                            "interface name": data['interface']['name'],
-                            "interface mac": data['interface']['macAddr'],
-                            "interface is vpn": data['interface']['isVpn'],
-                            "interface external ip": data['interface']['externalIp'],
-                            "server id": data['server']['id'],
-                            "server host": data['server']['host'],
-                            "server port": data['server']['port'],
-                            "server name": data['server']['name'],
-                            "server location": data['server']['location'],
-                            "server country": data['server']['country'],
-                            "result id": data['result']['id'],
-                            "result url": data['result']['url'],
-                            "result persisted": data['result']['persisted']
+                        if 'error' in data:
+                            sta_error+=1
+                            excel_result = {
+                                
+                                "station": sta.name, 
+                                "timestamp": "error",
+                                "ping jitter": "error",
+                                "ping latency": "error",
+                                "ping low": "error",
+                                "ping high": "error",
+                                "download bandwidth": "error",
+                                "download bytes": "error",
+                                "download elapsed": "error",
+                                "download latency iqm": "error",
+                                "download latency low": "error",
+                                "download latency high": "error",
+                                "download latency jitter": "error",
+                                "upload bandwidth": "error",
+                                "upload bytes": "error",
+                                "upload elapsed": "error",
+                                "upload latency iqm": "error",
+                                "upload latency low": "error",
+                                "upload latency high": "error",
+                                "upload latency jitter": "error",
+                                "packet loss": "error",
+                                "isp": "error",
+                                "interface internal ip": "error",
+                                "interface name": "error",
+                                "interface mac": "error",
+                                "interface is vpn": "error",
+                                "interface external ip": "error",
+                                "server id": "error",
+                                "server host": "error",
+                                "server port": "error",
+                                "server name": "error",
+                                "server location": "error",
+                                "server country": "error",
+                                "result id": "error",
+                                "result url": "error",
+                                "result persisted": "error",
+                                "error_message": data['error']
+                            }
+                        else:
 
-                        }
+                            excel_result = {
+                                
+                                "station": sta.name,  
+                                "timestamp": data.get('timestamp', 'error'),
+                                "ping jitter": data['ping'].get('jitter', 'error'),
+                                "ping latency": data['ping'].get('latency', 'error'),
+                                "ping low": data['ping'].get('low', 'error'),
+                                "ping high": data['ping'].get('high', 'error'),
+                                "download bandwidth": data['download'].get('bandwidth', 'error'),
+                                "download bytes": data['download'].get('bytes', 'error'),
+                                "download elapsed": data['download'].get('elapsed', 'error'),
+                                "download latency iqm": data['download']['latency'].get('iqm', 'error') if 'download' in data and 'latency' in data['download'] else 'error',
+                                "download latency low": data['download']['latency'].get('low', 'error') if 'download' in data and 'latency' in data['download'] else 'error',
+                                "download latency high": data['download']['latency'].get('high', 'error') if 'download' in data and 'latency' in data['download'] else 'error',
+                                "download latency jitter": data['download']['latency'].get('jitter', 'error') if 'download' in data and 'latency' in data['download'] else 'error',
+                                "upload bandwidth": data['upload'].get('bandwidth', 'error'),
+                                "upload bytes": data['upload'].get('bytes', 'error'),
+                                "upload elapsed": data['upload'].get('elapsed', 'error'),
+                                "upload latency iqm": data['upload']['latency'].get('iqm', 'error') if 'upload' in data and 'latency' in data['upload'] else 'error',
+                                "upload latency low": data['upload']['latency'].get('low', 'error') if 'upload' in data and 'latency' in data['upload'] else 'error',
+                                "upload latency high": data['upload']['latency'].get('high', 'error') if 'upload' in data and 'latency' in data['upload'] else 'error',
+                                "upload latency jitter": data['upload']['latency'].get('jitter', 'error') if 'upload' in data and 'latency' in data['upload'] else 'error',
+                                "packet loss": data.get('packetLoss', 'error'),
+                                "isp": data.get('isp', 'error'),
+                                "interface internal ip": data['interface'].get('internalIp', 'error') if 'interface' in data else 'error',
+                                "interface name": data['interface'].get('name', 'error') if 'interface' in data else 'error',
+                                "interface mac": data['interface'].get('macAddr', 'error') if 'interface' in data else 'error',
+                                "interface is vpn": data['interface'].get('isVpn', 'error') if 'interface' in data else 'error',
+                                "interface external ip": data['interface'].get('externalIp', 'error') if 'interface' in data else 'error',
+                                "server id": data['server'].get('id', 'error'),
+                                "server host": data['server'].get('host', 'error'),
+                                "server port": data['server'].get('port', 'error'),
+                                "server name": data['server'].get('name', 'error'),
+                                "server location": data['server'].get('location', 'error'),
+                                "server country": data['server'].get('country', 'error'),
+                                "result id": data['result'].get('id', 'error'),
+                                "result url": data['result'].get('url', 'error'),
+                                "result persisted": data['result'].get('persisted', 'error'),
+                                "error_message": "No error"
+                            }
+                            
+                            if 'latency' not in data['upload']:
+                                excel_result['upload latency iqm'] = "error"
+                                excel_result['upload latency low'] = "error"
+                                excel_result['upload latency high'] = "error"
+                                excel_result['upload latency jitter'] = "error"
+                            else:
+                                excel_result['upload latency iqm'] = data['upload']['latency']['iqm']
+                                excel_result['upload latency low'] = data['upload']['latency']['low']
+                                excel_result['upload latency high'] = data['upload']['latency']['high']
+                                excel_result['upload latency jitter'] = data['upload']['latency']['jitter']
+                           
                         excel_data.append(excel_result)
                 # Create a pandas dataframe
+                excel_result["total failed"] = sta_error
                 df = pd.DataFrame(excel_data)
                 # Save to excel
                 output_file = "/home/mamad/Documents/mininetlab/result/speedtest_helmi.xlsx"
@@ -265,7 +360,7 @@ def topology():
     info("*** Adding STAs\n")
     ap_position = (50, 50, 0)
     sta_count = int(input("Enter the number of stations to add: "))
-    radius = 10
+    radius = 3
     stations = []
     for i in range (sta_count):
         sta_name = f'sta{i+1}'
@@ -275,7 +370,7 @@ def topology():
         print(f"Added {sta_name} at position {sta_position}")
     
     info("*** Simulating Interference\n")
-    net.setPropagationModel(model="logDistance", exp=3.0)
+    net.setPropagationModel(model="logDistance", exp=2.0)
 
     h1 = net.addHost('h1', ip = '0.0.0.0')
     h2 = net.addHost('h2', ip = '0.0.0.0')
@@ -298,7 +393,7 @@ def topology():
     net.addLink(s1, h2)
     
     info("*** Plotting Graph\n")
-    net.plotGraph( min_x=0, max_x=70,min_y = 0, max_y=80)
+    #net.plotGraph( min_x=0, max_x=70,min_y = 0, max_y=80)
     
     info("*** Starting network\n")
     net.build()
@@ -324,9 +419,6 @@ def topology():
     
     info("*** Setting DNS up\n")
     h1.cmd("echo 'nameserver 192.168.1.1' > /etc/resolv.conf")
-    
-    
-
     
     info("*** Running Custom CLI\n")
     CustomCLI(net)
