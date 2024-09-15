@@ -1,35 +1,35 @@
 {
     "type": "result",
-    "timestamp": "2024-09-15T08:00:18Z",
+    "timestamp": "2024-09-15T08:23:20Z",
     "ping": {
-        "jitter": 183.736,
-        "latency": 122.093,
-        "low": 43.825,
-        "high": 296.722
+        "jitter": 1230.257,
+        "latency": 199.139,
+        "low": 41.742,
+        "high": 2507.827
     },
     "download": {
-        "bandwidth": 137271,
-        "bytes": 2430644,
-        "elapsed": 15004,
+        "bandwidth": 108854,
+        "bytes": 1833907,
+        "elapsed": 15002,
         "latency": {
-            "iqm": 368.176,
-            "low": 37.474,
-            "high": 1299.38,
-            "jitter": 75.743
+            "iqm": 456.61,
+            "low": 42.75,
+            "high": 1493.823,
+            "jitter": 78.138
         }
     },
     "upload": {
-        "bandwidth": 118648,
-        "bytes": 1690288,
-        "elapsed": 14994,
+        "bandwidth": 135898,
+        "bytes": 2016384,
+        "elapsed": 14960,
         "latency": {
-            "iqm": 226.76,
-            "low": 34.765,
-            "high": 1860.758,
-            "jitter": 57.61
+            "iqm": 174.031,
+            "low": 37.618,
+            "high": 787.755,
+            "jitter": 52.685
         }
     },
-    "packetLoss": 8.724832214765101,
+    "packetLoss": 13.422818791946309,
     "isp": "Universitas Sebelas Maret",
     "interface": {
         "internalIp": "192.168.1.119",
@@ -48,8 +48,8 @@
         "ip": "49.128.181.12"
     },
     "result": {
-        "id": "710a129c-03c1-4684-90cc-e3889f75139b",
-        "url": "https://www.speedtest.net/result/c/710a129c-03c1-4684-90cc-e3889f75139b",
+        "id": "b5233334-67ca-4cd4-b57a-9d43bae925fe",
+        "url": "https://www.speedtest.net/result/c/b5233334-67ca-4cd4-b57a-9d43bae925fe",
         "persisted": true
     }
 }

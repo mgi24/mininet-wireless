@@ -179,7 +179,7 @@ class CustomCLI(CLI):
                     if result:
                         try:
                             data = json.loads(json.dumps(result))
-                            result_file = f'/home/mamad/Documents/mininetlab/result/sta{i}.json'
+                            result_file = f'/home/mamad/Documents/mininetlab/result/sta{i+1}.json'
                             if 'error' in data:
                                 data = {'error':data['error'],
                                         'server':{'name': server_name}}
@@ -192,6 +192,10 @@ class CustomCLI(CLI):
                             print(f"Failed to decode JSON: {e}")
                     else:
                         print("No result available")
+                        result_file = f'/home/mamad/Documents/mininetlab/result/sta{i+1}.json'
+                        with open(result_file, 'w') as f:
+                            json.dump({'error':'SPEEDTEST ERROR', 'server':{'name': server_name}}, f, indent=4)
+                        
             else:
                 print("No STAs found")
         

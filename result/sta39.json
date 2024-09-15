@@ -1,6 +1,55 @@
 {
-    "error": "Latency test failed",
+    "type": "result",
+    "timestamp": "2024-09-15T08:23:18Z",
+    "ping": {
+        "jitter": 121.379,
+        "latency": 34.092,
+        "low": 31.076,
+        "high": 506.291
+    },
+    "download": {
+        "bandwidth": 156290,
+        "bytes": 2071613,
+        "elapsed": 15010,
+        "latency": {
+            "iqm": 415.038,
+            "low": 24.028,
+            "high": 2869.528,
+            "jitter": 80.592
+        }
+    },
+    "upload": {
+        "bandwidth": 91270,
+        "bytes": 1274480,
+        "elapsed": 14255,
+        "latency": {
+            "iqm": 342.015,
+            "low": 26.052,
+            "high": 1865.505,
+            "jitter": 76.181
+        }
+    },
+    "packetLoss": 15.41501976284585,
+    "isp": "Universitas Sebelas Maret",
+    "interface": {
+        "internalIp": "192.168.1.224",
+        "name": "sta39-wlan0",
+        "macAddr": "02:00:00:00:26:00",
+        "isVpn": false,
+        "externalIp": "203.6.148.253"
+    },
     "server": {
-        "name": "Citranet"
+        "id": 33207,
+        "host": "speedtest.gsmnet.id",
+        "port": 8080,
+        "name": "Lintas Data Prima",
+        "location": "Surakarta",
+        "country": "Indonesia",
+        "ip": "202.56.167.171"
+    },
+    "result": {
+        "id": "24a6086b-dd4e-490d-a317-ee618389fa88",
+        "url": "https://www.speedtest.net/result/c/24a6086b-dd4e-490d-a317-ee618389fa88",
+        "persisted": true
     }
 }

@@ -1,6 +1,55 @@
 {
-    "error": "Latency test failed",
+    "type": "result",
+    "timestamp": "2024-09-15T08:23:16Z",
+    "ping": {
+        "jitter": 304.003,
+        "latency": 116.192,
+        "low": 37.956,
+        "high": 527.04
+    },
+    "download": {
+        "bandwidth": 137314,
+        "bytes": 1978819,
+        "elapsed": 15009,
+        "latency": {
+            "iqm": 532.844,
+            "low": 35.128,
+            "high": 2779.46,
+            "jitter": 79.798
+        }
+    },
+    "upload": {
+        "bandwidth": 64123,
+        "bytes": 882880,
+        "elapsed": 15003,
+        "latency": {
+            "iqm": 429.315,
+            "low": 40.189,
+            "high": 2161.355,
+            "jitter": 74.905
+        }
+    },
+    "packetLoss": 13.651877133105803,
+    "isp": "Universitas Sebelas Maret",
+    "interface": {
+        "internalIp": "192.168.1.142",
+        "name": "sta22-wlan0",
+        "macAddr": "02:00:00:00:15:00",
+        "isVpn": false,
+        "externalIp": "203.6.148.253"
+    },
     "server": {
-        "name": "Lintas Data Prima"
+        "id": 13825,
+        "host": "speedtestsrk1.gmedia.net.id",
+        "port": 8080,
+        "name": "GMEDIA",
+        "location": "Surakarta",
+        "country": "Indonesia",
+        "ip": "49.128.181.12"
+    },
+    "result": {
+        "id": "2df510c3-0b7e-41ec-9bbb-162323b15e07",
+        "url": "https://www.speedtest.net/result/c/2df510c3-0b7e-41ec-9bbb-162323b15e07",
+        "persisted": true
     }
 }
