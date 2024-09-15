@@ -1,0 +1,55 @@
+{
+    "type": "result",
+    "timestamp": "2024-09-15T08:00:20Z",
+    "ping": {
+        "jitter": 180.783,
+        "latency": 106.76,
+        "low": 30.852,
+        "high": 274.336
+    },
+    "download": {
+        "bandwidth": 148065,
+        "bytes": 2092469,
+        "elapsed": 15008,
+        "latency": {
+            "iqm": 298.106,
+            "low": 29.732,
+            "high": 1379.522,
+            "jitter": 74.335
+        }
+    },
+    "upload": {
+        "bandwidth": 95279,
+        "bytes": 1339984,
+        "elapsed": 15004,
+        "latency": {
+            "iqm": 166.474,
+            "low": 23.595,
+            "high": 1072.363,
+            "jitter": 55.787
+        }
+    },
+    "packetLoss": 12.244897959183673,
+    "isp": "Universitas Sebelas Maret",
+    "interface": {
+        "internalIp": "192.168.1.169",
+        "name": "sta44-wlan0",
+        "macAddr": "02:00:00:00:2B:00",
+        "isVpn": false,
+        "externalIp": "203.6.148.253"
+    },
+    "server": {
+        "id": 36813,
+        "host": "speedtest2.solo.citra.net.id",
+        "port": 8080,
+        "name": "CitraNet",
+        "location": "Surakarta",
+        "country": "Indonesia",
+        "ip": "202.65.123.22"
+    },
+    "result": {
+        "id": "7c9a2899-17b1-4042-8d54-f563a62f95ed",
+        "url": "https://www.speedtest.net/result/c/7c9a2899-17b1-4042-8d54-f563a62f95ed",
+        "persisted": true
+    }
+}

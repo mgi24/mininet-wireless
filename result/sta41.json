@@ -1,0 +1,55 @@
+{
+    "type": "result",
+    "timestamp": "2024-09-15T08:00:22Z",
+    "ping": {
+        "jitter": 294.053,
+        "latency": 178.042,
+        "low": 27.788,
+        "high": 620.231
+    },
+    "download": {
+        "bandwidth": 171113,
+        "bytes": 2497696,
+        "elapsed": 15004,
+        "latency": {
+            "iqm": 209.39,
+            "low": 28.758,
+            "high": 768.179,
+            "jitter": 65.655
+        }
+    },
+    "upload": {
+        "bandwidth": 235260,
+        "bytes": 3317920,
+        "elapsed": 14997,
+        "latency": {
+            "iqm": 124.733,
+            "low": 19.212,
+            "high": 745.911,
+            "jitter": 51.088
+        }
+    },
+    "packetLoss": 6.040268456375839,
+    "isp": "Universitas Sebelas Maret",
+    "interface": {
+        "internalIp": "192.168.1.172",
+        "name": "sta41-wlan0",
+        "macAddr": "02:00:00:00:28:00",
+        "isVpn": false,
+        "externalIp": "203.6.148.253"
+    },
+    "server": {
+        "id": 41848,
+        "host": "sukoharjo-ookla.gmdp.net.id",
+        "port": 8080,
+        "name": "Global Media Data Prima",
+        "location": "Sukoharjo",
+        "country": "Indonesia",
+        "ip": "103.124.138.2"
+    },
+    "result": {
+        "id": "6c47d268-6f67-49b7-8139-ab9085aa3dbc",
+        "url": "https://www.speedtest.net/result/c/6c47d268-6f67-49b7-8139-ab9085aa3dbc",
+        "persisted": true
+    }
+}

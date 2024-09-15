@@ -1,0 +1,55 @@
+{
+    "type": "result",
+    "timestamp": "2024-09-15T08:00:12Z",
+    "ping": {
+        "jitter": 7.442,
+        "latency": 27.367,
+        "low": 24.091,
+        "high": 33.191
+    },
+    "download": {
+        "bandwidth": 206862,
+        "bytes": 2494955,
+        "elapsed": 12700,
+        "latency": {
+            "iqm": 143.821,
+            "low": 21.171,
+            "high": 848.065,
+            "jitter": 57.714
+        }
+    },
+    "upload": {
+        "bandwidth": 55715,
+        "bytes": 753296,
+        "elapsed": 14278,
+        "latency": {
+            "iqm": 167.952,
+            "low": 23.743,
+            "high": 925.251,
+            "jitter": 60.022
+        }
+    },
+    "packetLoss": 7.5396825396825395,
+    "isp": "Universitas Sebelas Maret",
+    "interface": {
+        "internalIp": "192.168.1.248",
+        "name": "sta15-wlan0",
+        "macAddr": "02:00:00:00:0E:00",
+        "isVpn": false,
+        "externalIp": "203.6.148.253"
+    },
+    "server": {
+        "id": 33207,
+        "host": "speedtest.gsmnet.id",
+        "port": 8080,
+        "name": "Lintas Data Prima",
+        "location": "Surakarta",
+        "country": "Indonesia",
+        "ip": "202.56.167.171"
+    },
+    "result": {
+        "id": "fdb7a798-e0fd-4de5-80d9-1992a0fad3a4",
+        "url": "https://www.speedtest.net/result/c/fdb7a798-e0fd-4de5-80d9-1992a0fad3a4",
+        "persisted": true
+    }
+}

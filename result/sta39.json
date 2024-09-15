@@ -1,0 +1,6 @@
+{
+    "error": "Latency test failed",
+    "server": {
+        "name": "Citranet"
+    }
+}

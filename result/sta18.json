@@ -1,0 +1,55 @@
+{
+    "type": "result",
+    "timestamp": "2024-09-15T08:00:16Z",
+    "ping": {
+        "jitter": 179.279,
+        "latency": 112.966,
+        "low": 41.056,
+        "high": 296.678
+    },
+    "download": {
+        "bandwidth": 225131,
+        "bytes": 2665089,
+        "elapsed": 15003,
+        "latency": {
+            "iqm": 575.801,
+            "low": 40.093,
+            "high": 2066.591,
+            "jitter": 82.326
+        }
+    },
+    "upload": {
+        "bandwidth": 79139,
+        "bytes": 1154864,
+        "elapsed": 14602,
+        "latency": {
+            "iqm": 231.218,
+            "low": 35.842,
+            "high": 1550.137,
+            "jitter": 60.345
+        }
+    },
+    "packetLoss": 11.945392491467576,
+    "isp": "Universitas Sebelas Maret",
+    "interface": {
+        "internalIp": "192.168.1.245",
+        "name": "sta18-wlan0",
+        "macAddr": "02:00:00:00:11:00",
+        "isVpn": false,
+        "externalIp": "203.6.148.253"
+    },
+    "server": {
+        "id": 13825,
+        "host": "speedtestsrk1.gmedia.net.id",
+        "port": 8080,
+        "name": "GMEDIA",
+        "location": "Surakarta",
+        "country": "Indonesia",
+        "ip": "49.128.181.12"
+    },
+    "result": {
+        "id": "2099572b-2e59-4069-ab63-f5499c0a0e8f",
+        "url": "https://www.speedtest.net/result/c/2099572b-2e59-4069-ab63-f5499c0a0e8f",
+        "persisted": true
+    }
+}

@@ -1,0 +1,12 @@
+sta n mode
+{'ip': '10.0.0.1/8', 'ip6': '2001:0:0:0:0:0:0:1/64', 'channel': 36, 'band': 20, 'freq': 2.4, 'mode': 'n', 'encrypt': '', 'passwd': '', 'ieee80211w': None, 'isStation': True, 'wlan': ['sta1-wlan0']}
+
+
+sta in code
+{'ip': '0.0.0.0', 'ip6': '2001:0:0:0:0:0:0:1/64', 'channel': 1, 'band': 20, 'freq': 2.4, 'mode': 'n', 'encrypt': '', 'passwd': None, 'ieee80211w': None, 'wlan': ['sta1-wlan0']}
+
+ap n mode
+{'ssid': 'my-ssid', 'channel': 36, 'band': 20, 'freq': 2.4, 'mode': 'n', 'encrypt': '', 'passwd': '', 'ieee80211w': None, 'isAP': True, 'wlan': ['ap1-wlan1']}
+
+ap in code
+{'ssid': 'HighSpeedWiFi', 'channel': '36', 'band': 20, 'freq': 2.4, 'mode': 'n', 'encrypt': '', 'passwd': None, 'ieee80211w': None, 'wlan': ['ap1-wlan1']}
