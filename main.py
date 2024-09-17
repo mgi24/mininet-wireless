@@ -14,6 +14,7 @@ import json
 import time
 import matplotlib.pyplot as plt
 import os
+from threading import Thread
 def pinghost(net, host1, host2):
     h1 = net.get(host1)
     h2 = net.get(host2)
@@ -32,6 +33,31 @@ def pinghost(net, host1, host2):
             print("Failed to retrieve IP for h1 or h2")
         print(result)
         print(f"Host {host1} or {host2} not found")
+                   
+def run_speedtest(sta, server_port,server_name, results, index):
+    # Run the speedtest command and capture the output
+    result = sta.cmd(f"speedtest -s {server_port} --format=json")
+    print(f"test {sta.name} server {server_port} {server_name} done")
+    
+    try:
+        result_json = json.loads(result)
+        results[index] = result_json
+    except json.JSONDecodeError as e:
+        print(result)
+        try:
+            result = '{' + '"type":"result"' + result.split('"type":"result"')[-1]
+            result_json = json.loads(result)
+            
+            results[index] = result_json
+        except:
+            try:
+                result = '{"' + "error" + result.split('error')[-1]
+                result_json = json.loads(result)
+            
+                results[index] = result_json
+            except:
+                print(result)
+                print(f"Error decoding JSON for {sta.name}: {e}")
 
 class CustomCLI(CLI):
     def do_pinghost(self, line):
@@ -54,6 +80,8 @@ class CustomCLI(CLI):
         else:
             for arg in args:
                 print(arg)
+
+    
 
 
     def do_speedtest(self, line):
@@ -89,92 +117,85 @@ class CustomCLI(CLI):
 
         else:
             "Run speedtest on all STAs"
-            
+            results = [None] * len(sta_list)
+            threads = []
             if sta_list:
                 print("removing previous run json...")
                 sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result && rm -f *')
                 print("starting speedtest...")
-                
-                
-                pids = []
 
                 for i, sta in enumerate(sta_list):
-        
                     if i % 4 == 0:
-                        server_port = 41848 #Global Media Data Prima
+                        server_port = 41848  # Global Media Data Prima
+                        server_name = "Global Media Data Prima"
                     elif i % 4 == 1:
-                        server_port = 13825 #GMEDIA
+                        server_port = 13825  # GMEDIA
+                        server_name = "GMEDIA" 
                     elif i % 4 == 2:
-                        server_port = 33207 #Lintas Data Prima
+                        server_port = 33207  # Lintas Data Prima
+                        server_name = "Lintas Data Prima"
                     elif i % 4 == 3:
-                        server_port = 36813 #Citranet
-                    
-
-                    output = sta.cmd(f"speedtest -s {server_port} --format json > /home/mamad/Documents/mininetlab/result/{sta.name}.json & echo $!")
-                    
-                    pid = output.strip()
+                        server_port = 36813  # Citranet
+                        server_name = "Citranet"
+                    # Run speedtest in the background and capture the PID
+                    print(f"Starting speedtest on {sta.name} with server port {server_port} {server_name}")
+                    thread = Thread(target=run_speedtest, args=(sta, server_port, server_name, results, i))
+                    threads.append(thread)
+                    thread.start()
                     time.sleep(0.1)
-                    print(sta.name,pid)
-                    pid = pid.split()[1]
-                    print(sta.name,pid)
-                    pids.append(pid)
-                    
-                    
-                while(True):
-                    if not pids:
-                        break
-                    for pid in pids:
-                        check_pid = sta_list[0].cmd(f"ps -p {pid}")
-                        if pid not in check_pid:
-                            print(f"PID {pid} done testing")
-                            pids.remove(pid)
 
+                for thread in threads:
+                    thread.join()
+                print("All processes completed")
 
                 print("Waiting remaning process...")
                 time.sleep(1)
 
-                for i, sta in enumerate(sta_list):
-                    result_file = f'/home/mamad/Documents/mininetlab/result/{sta.name}.json'
-                    if os.path.exists(result_file):
-                        if i % 4 == 0:
-                            server_name = "Global Media Data Prima"
-                        elif i % 4 == 1:
-                            server_name = "GMEDIA"
-                        elif i % 4 == 2:
-                            server_name = "Lintas Data Prima"
-                        elif i % 4 == 3:
-                            server_name = "Citranet"
-                        with open(result_file) as f:
-                            if os.path.getsize(result_file) > 0:
-                                data = json.load(f)
-                                
-                                if 'error' in data:
-                                    data = {'error':data['error'],
-                                            'server':{'name': server_name}}
-                                
-                                with open(result_file, 'w') as file:
-                                    data_str=json.dump(data, file, indent=4)
-                                    print(f"Updated JSON file: {result_file}")
-                                    print(data_str)
-                            else:
-                                data = {
-                                    'error': 'SPEEDTEST TASK FAILED',
-                                    'server': {
-                                    'name': server_name
-                                    }
-                                }
-                                with open(result_file, 'w') as file:
-                                    data_str=json.dump(data, file, indent=4)
-                                    print(f"Updated JSON file: {result_file}")
-                                    print(data_str)
-                                
+                for i, result in enumerate(results):
+                    
+                    if i % 4 == 0:
+                        server_name = "Global Media Data Prima"
+                    elif i % 4 == 1:
+                        server_name = "GMEDIA"
+                    elif i % 4 == 2:
+                        server_name = "Lintas Data Prima"
+                    elif i % 4 == 3:
+                        server_name = "Citranet"
+
+
+                    if i % 4 == 0:
+                        server_port = 41848  # Global Media Data Prima
+                        server_name = "Global Media Data Prima"
+                    elif i % 4 == 1:
+                        server_port = 13825  # GMEDIA
+                        server_name = "GMEDIA" 
+                    elif i % 4 == 2:
+                        server_port = 33207  # Lintas Data Prima
+                        server_name = "Lintas Data Prima"
+                    elif i % 4 == 3:
+                        server_port = 36813  # Citranet
+                        server_name = "Citranet"
+                    print(f"Result on sta{i+1} server {server_name}")
+                    if result:
+                        try:
+                            data = json.loads(json.dumps(result))
+                            result_file = f'/home/mamad/Documents/mininetlab/result/sta{i+1}.json'
+                            if 'error' in data:
+                                data = {'error':data['error'],
+                                        'server':{'name': server_name}}
+                            with open(result_file, 'w') as f:
+                                json.dump(data, f, indent=4)
+                            print(f"Result saved to {result_file}")
+
+                            
+                        except json.JSONDecodeError as e:
+                            print(f"Failed to decode JSON: {e}")
                     else:
-                        print(f"Result file {result_file} not found")
+                        print("No result available")
+                        result_file = f'/home/mamad/Documents/mininetlab/result/sta{i+1}.json'
+                        with open(result_file, 'w') as f:
+                            json.dump({'error':'SPEEDTEST ERROR', 'server':{'name': server_name}}, f, indent=4)
                         
-
-                
-
-                
             else:
                 print("No STAs found")
         
@@ -245,20 +266,75 @@ def topology():
 
     info("*** Creating nodes\n")
     s1 = net.addSwitch('s1', cls=OVSKernelSwitch, failMode='standalone')
-    ap1 = net.addAccessPoint('ap1', ssid="simpletopo", mode="n",
-                             channel="36", position='50.0,50.0,0.0')
+    
     
     info("*** Adding STAs\n")
-    ap_position = (50, 50, 0)
-    sta_count = int(input("Enter the number of stations to add: "))
+    
+
+    # Input jumlah sta dan ap
+    sta_count = int(input("Masukkan jumlah sta: "))
+    ap_count = int(input("Masukkan jumlah ap: "))
+
+    # List untuk menyimpan daftar access point dan station
+    aps = []
+    stations = []
+
+    # Buat access point sesuai dengan input
+    for i in range(1, ap_count + 1):
+        ap_name = f'ap{i}'
+
+        aps.append(ap_name)  # Menambahkan nama AP ke dalam list aps
+
+
+    # Buat station sesuai dengan input
+    for i in range(1, sta_count + 1):
+        sta_name = f'sta{i}'
+        stations.append(sta_name)  # Menambahkan nama station ke dalam list stations
+
+    # Bagikan sta ke ap secara merata
+    sta_per_ap = sta_count // ap_count  # Pembagian sta per ap
+    extra_sta = sta_count % ap_count     # Sisa sta yang perlu didistribusikan
+
+    # Menyimpan pembagian sta ke setiap ap
+    sta_distribution = {ap: [] for ap in aps}  # Dictionary untuk menyimpan distribusi
+
+    sta_index = 0
+    for ap in aps:
+        # Tambahkan sta_per_ap ke setiap ap
+        for _ in range(sta_per_ap):
+            sta_distribution[ap].append(stations[sta_index])
+            sta_index += 1
+
+        # Jika ada sisa sta, tambahkan satu sta tambahan ke beberapa ap
+        if extra_sta > 0:
+            sta_distribution[ap].append(stations[sta_index])
+            sta_index += 1
+            extra_sta -= 1
+
+    # Output hasil distribusi
+    for ap, sta_list in sta_distribution.items():
+        
+        print(f"{ap} memiliki {len(sta_list)} sta: {', '.join(sta_list)}")
+
+    aps = []
+    for i in range(1, ap_count + 1):
+        ap = net.addAccessPoint(f'ap{i}', ssid=f"wireless{i}", mode="n", channel="36", position=f'{200.0*i},50.0,0.0')
+        aps.append(ap)
+
+
+
+
     radius = 3
     stations = []
-    for i in range (sta_count):
-        sta_name = f'sta{i+1}'
-        sta_position = generate_random_position(ap_position, radius)
-        sta = net.addStation(sta_name,ip='0.0.0.0' ,position=sta_position, mode = "n", channel = "36")
-        stations.append(sta)
-        print(f"Added {sta_name} at position {sta_position}")
+    for i, (ap, sta_list) in enumerate(sta_distribution.items()):
+        for sta_name in sta_list:
+            ap_position = aps[i].position
+            sta_position = generate_random_position(ap_position, radius)
+            sta = net.addStation(sta_name, ip='0.0.0.0', position=sta_position, mode="n", channel="36")
+            stations.append(sta)
+            print(f"Added {sta_name} at position {sta_position}")
+
+        
     
     info("*** Simulating Interference\n")
     net.setPropagationModel(model="logDistance", exp=3.0)
@@ -271,30 +347,45 @@ def topology():
     info("*** Configuring nodes\n")
     net.configureNodes()
 
-    info('*** Adding physical interface ens33 >===< switch\n')
+    info('*** Adding physical interface eth0 >===< switch\n')
     intf = Intf('ens33', node=s1)
     
     info("*** Connecting Stations to AP\n")
-    for i, sta in enumerate(stations):
-        sta.setAssociation(ap1, intf=f'{sta.name}-wlan0')
+    for i,(ap, sta_list)  in enumerate(sta_distribution.items()):
+        for sta_name in sta_list:
+            ap=aps[i]
+            sta = net.get(sta_name)
+            sta.setAssociation(ap, intf=f'{sta_name}-wlan0')
     
     info("*** Wiring up switch\n")
-    net.addLink(s1, ap1)
+    for ap in aps:
+        net.addLink(s1, ap)
     net.addLink(s1, h1)
     net.addLink(s1, h2)
     
     info("*** Plotting Graph\n")
-    #net.plotGraph( min_x=0, max_x=70,min_y = 0, max_y=80)
+    net.plotGraph( min_x=0, max_x=70,min_y = 0, max_y=80)
     
     info("*** Starting network\n")
     net.build()
     c0.start()
-    ap1.start([c0])
+    for ap in aps:
+        ap.start([c0])
     s1.start([c0])
 
+    
+        
+    seconds = 60
+    while seconds > 0:
+        print(f"{seconds} seconds before getting DHCP on stas")
+        time.sleep(1)
+        seconds -= 1    
+    
     info("*** Getting IP's from DHCP\n")
     h1.cmd('dhclient h1-eth0')
     h2.cmd('dhclient h2-eth0')
+    
+    
     print(stations)
     for i, sta in enumerate(stations):
         sta.cmd(f'dhclient {sta.name}-wlan0')
