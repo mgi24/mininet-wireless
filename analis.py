@@ -67,7 +67,8 @@ def read_json_files(directory):
                         "result id": "error",
                         "result url": "error",
                         "result persisted": "error",
-                        "error_message": data['error']
+                        "error_message": data['error'],
+                        "rssi":data['rssi']
                     }
                 else:
                     data['download']['bandwidth'] *= 8
@@ -112,7 +113,8 @@ def read_json_files(directory):
                         "result id": data['result'].get('id', 'error'),
                         "result url": data['result'].get('url', 'error'),
                         "result persisted": data['result'].get('persisted', 'error'),
-                        "error_message": "No error"
+                        "error_message": "No error",
+                        "rssi":data['rssi']
                     }
                     
                     if 'latency' not in data['upload']:
@@ -171,7 +173,8 @@ def read_json_files(directory):
                         "result id": "error",
                         "result url": "error",
                         "result persisted": "error",
-                        "error_message": "SPEEDTEST TASK FAILED"
+                        "error_message": "SPEEDTEST TASK FAILED",
+                        "rssi":data['rssi']
                     }
                 excel_data.append(excel_result)
     excel_result["total failed"]=sta_error

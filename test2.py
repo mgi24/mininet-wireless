@@ -152,16 +152,6 @@ class CustomCLI(CLI):
                 time.sleep(1)
 
                 for i, result in enumerate(results):
-                    
-                    if i % 4 == 0:
-                        server_name = "Global Media Data Prima"
-                    elif i % 4 == 1:
-                        server_name = "GMEDIA"
-                    elif i % 4 == 2:
-                        server_name = "Lintas Data Prima"
-                    elif i % 4 == 3:
-                        server_name = "Citranet"
-
 
                     if i % 4 == 0:
                         server_port = 41848  # Global Media Data Prima
@@ -180,9 +170,10 @@ class CustomCLI(CLI):
                         try:
                             data = json.loads(json.dumps(result))
                             result_file = f'/home/mamad/Documents/mininetlab/result/sta{i+1}.json'
+                            data['rssi'] = sta_list[i].wintfs[0].rssi
                             if 'error' in data:
                                 data = {'error':data['error'],
-                                        'server':{'name': server_name}}
+                                        'server':{'name': server_name}, 'rssi':sta_list[i].wintfs[0].rssi}
                             with open(result_file, 'w') as f:
                                 json.dump(data, f, indent=4)
                             print(f"Result saved to {result_file}")
@@ -194,7 +185,7 @@ class CustomCLI(CLI):
                         print("No result available")
                         result_file = f'/home/mamad/Documents/mininetlab/result/sta{i+1}.json'
                         with open(result_file, 'w') as f:
-                            json.dump({'error':'SPEEDTEST ERROR', 'server':{'name': server_name}}, f, indent=4)
+                            json.dump({'error':'SPEEDTEST ERROR', 'server':{'name': server_name},'rssi':sta_list[i].wintfs[0].rssi}, f, indent=4)
                         
             else:
                 print("No STAs found")
@@ -261,7 +252,7 @@ class CustomCLI(CLI):
                 ip_list = ip_output.split()
                 if ip_list:
                     print(f"IP {sta.name}: {ip_list[0]}")
-                    time.sleep(2)
+                    time.sleep(0.1)
                 else:
                     print(f"Failed to retrieve IP for {sta.name}")
             sta_list[0].cmd("echo 'nameserver 192.168.1.1' > /etc/resolv.conf")
@@ -409,15 +400,12 @@ def topology():
 
     info("*** Checking RSSI\n")
     time.sleep(10)
+    rssi = []
     for sta in stations:
         print(f"{sta.name} {sta.wintfs[0].rssi}")
+        rssi.append(sta.wintfs[0].rssi)
     
-        
-    seconds = 30
-    while seconds > 0:
-        print(f"{seconds} seconds before getting DHCP on stas")
-        time.sleep(1)
-        seconds -= 1    
+            
     
     info("*** Getting IP's from DHCP\n")
     h1.cmd('dhclient h1-eth0')
