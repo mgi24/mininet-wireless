@@ -351,9 +351,10 @@ def topology():
         for sta_name in sta_list:
             ap_position = aps[i].position
             sta_position = generate_random_position(ap_position, radius)
-            sta = net.addStation(sta_name, ip='0.0.0.0', position=sta_position, mode="n", channel="36")
+            mac_address = f'02:00:00:00:{i:02x}:{len(stations):02x}'
+            sta = net.addStation(sta_name, ip='0.0.0.0', position=sta_position, mode="n", channel="36", mac=mac_address)
             stations.append(sta)
-            print(f"Added {sta_name} at position {sta_position}")
+            print(f"Added {sta_name} at position {sta_position} with MAC {mac_address}")
         
 
         
@@ -361,7 +362,7 @@ def topology():
     info("*** Simulating Interference\n")
     net.setPropagationModel(model="logDistance", exp=3.0)
 
-    h1 = net.addHost('h1', ip = '0.0.0.0')
+    h1 = net.addHost('h1', ip='0.0.0.0', mac='02:00:00:ff:ff:ff')
     h2 = net.addHost('h2', ip = '0.0.0.0')
     
     info("*** Adding controller\n")
@@ -375,7 +376,7 @@ def topology():
     net.configureNodes()
 
     info('*** Adding physical interface ens33 >===< switch\n')
-    intf = Intf('ens33', node=s1)
+    intf = Intf('ens37', node=s1)
     
     info("*** Connecting Stations to AP\n")
     for i,(ap, sta_list)  in enumerate(sta_distribution.items()):
@@ -409,7 +410,7 @@ def topology():
     info("*** Checking RSSI\n")
     time.sleep(10)
     for sta in stations:
-        print(sta.wintfs[0].rssi)
+        print(f"{sta.name} {sta.wintfs[0].rssi}")
     
         
     seconds = 30
@@ -420,7 +421,7 @@ def topology():
     
     info("*** Getting IP's from DHCP\n")
     h1.cmd('dhclient h1-eth0')
-    h2.cmd('dhclient h2-eth0')
+    #h2.cmd('dhclient h2-eth0')
     
     
     #print(stations)

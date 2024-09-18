@@ -247,6 +247,27 @@ class CustomCLI(CLI):
         else:
             print(f"Host {sta1} or {sta2} not found")
         sta1.cmd('killall iperf')
+
+
+
+    def do_dhcp(self, line):
+        "Run DHCP client on all STAs"
+        sta_list = self.mn.stations
+        if sta_list:
+            for sta in sta_list:
+                sta.cmd(f"dhclient {sta.name}-wlan0")
+                print(f"DHCP client started on {sta.name}")
+                ip_output = sta.cmd('hostname -I')
+                ip_list = ip_output.split()
+                if ip_list:
+                    print(f"IP {sta.name}: {ip_list[0]}")
+                    time.sleep(2)
+                else:
+                    print(f"Failed to retrieve IP for {sta.name}")
+            sta_list[0].cmd("echo 'nameserver 192.168.1.1' > /etc/resolv.conf")
+        else:
+            print("No STAs found")
+        
  
     
         
@@ -330,25 +351,32 @@ def topology():
         for sta_name in sta_list:
             ap_position = aps[i].position
             sta_position = generate_random_position(ap_position, radius)
-            sta = net.addStation(sta_name, ip='0.0.0.0', position=sta_position, mode="n", channel="36")
+            mac_address = f'02:00:00:00:{i:02x}:{len(stations):02x}'
+            sta = net.addStation(sta_name, ip='0.0.0.0', position=sta_position, mode="n", channel="36", mac=mac_address)
             stations.append(sta)
-            print(f"Added {sta_name} at position {sta_position}")
+            print(f"Added {sta_name} at position {sta_position} with MAC {mac_address}")
+        
 
         
     
     info("*** Simulating Interference\n")
     net.setPropagationModel(model="logDistance", exp=3.0)
 
-    h1 = net.addHost('h1', ip = '0.0.0.0')
+    h1 = net.addHost('h1', ip='0.0.0.0', mac='02:00:00:ff:ff:ff')
     h2 = net.addHost('h2', ip = '0.0.0.0')
     
+    info("*** Adding controller\n")
     c0 = net.addController('c0')
+    '''contollers = []
+    for ap in aps:
+        c = net.addController(f'c{ap}')
+        contollers.append(c)'''
 
     info("*** Configuring nodes\n")
     net.configureNodes()
 
-    info('*** Adding physical interface eth0 >===< switch\n')
-    intf = Intf('ens33', node=s1)
+    info('*** Adding physical interface ens33 >===< switch\n')
+    intf = Intf('ens37', node=s1)
     
     info("*** Connecting Stations to AP\n")
     for i,(ap, sta_list)  in enumerate(sta_distribution.items()):
@@ -356,10 +384,12 @@ def topology():
             ap=aps[i]
             sta = net.get(sta_name)
             sta.setAssociation(ap, intf=f'{sta_name}-wlan0')
+            print(f"Connecting {sta.name} to {ap.name}")
     
     info("*** Wiring up switch\n")
     for ap in aps:
         net.addLink(s1, ap)
+        print(f"Connecting {ap.name} to switch")
     net.addLink(s1, h1)
     net.addLink(s1, h2)
     
@@ -369,13 +399,21 @@ def topology():
     info("*** Starting network\n")
     net.build()
     c0.start()
-    for ap in aps:
+    '''for contoller in contollers:
+        contoller.start()'''
+
+    for i, ap in enumerate(aps):
         ap.start([c0])
+        
     s1.start([c0])
 
+    info("*** Checking RSSI\n")
+    time.sleep(10)
+    for sta in stations:
+        print(f"{sta.name} {sta.wintfs[0].rssi}")
     
         
-    seconds = 60
+    seconds = 30
     while seconds > 0:
         print(f"{seconds} seconds before getting DHCP on stas")
         time.sleep(1)
@@ -383,18 +421,11 @@ def topology():
     
     info("*** Getting IP's from DHCP\n")
     h1.cmd('dhclient h1-eth0')
-    h2.cmd('dhclient h2-eth0')
+    #h2.cmd('dhclient h2-eth0')
     
     
-    print(stations)
-    for i, sta in enumerate(stations):
-        sta.cmd(f'dhclient {sta.name}-wlan0')
-        ip_output = sta.cmd('hostname -I')
-        ip_list = ip_output.split()
-        if ip_list:
-            print(f"IP {sta.name}: {ip_list[0]}")
-        else:
-            print(f"Failed to retrieve IP for {sta.name}")
+    #print(stations)
+
         
     print(f"IP h1:{h1.cmd('hostname -I')}")
     print(f"IP h2:{h2.cmd('hostname -I')}")
