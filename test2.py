@@ -308,21 +308,24 @@ def run_speedtest(sta, server_port,server_name, results, index):
         result_json = json.loads(result)
         results[index] = result_json
     except json.JSONDecodeError as e:
-        print(result)
-        try:
-            result = '{' + '"type":"result"' + result.split('"type":"result"')[-1]
-            result_json = json.loads(result)
-            
-            results[index] = result_json
-        except:
+        if "CLI" in result:
+            results[index] = json.loads('{"error": "CLI LIMIT"}')
+        else:
+            print(result)
             try:
-                result = '{"' + "error" + result.split('error')[-1]
+                result = '{' + '"type":"result"' + result.split('"type":"result"')[-1]
                 result_json = json.loads(result)
-            
+                
                 results[index] = result_json
             except:
-                print(result)
-                print(f"Error decoding JSON for {sta.name}: {e}")
+                try:
+                    result = '{"' + "error" + result.split('error')[-1]
+                    result_json = json.loads(result)
+                
+                    results[index] = result_json
+                except:
+                    print(result)
+                    print(f"Error decoding JSON for {sta.name}: {e}")
 
 class CustomCLI(CLI):
     def do_pinghost(self, line):
