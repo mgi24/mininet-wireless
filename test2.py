@@ -18,7 +18,7 @@ from threading import Thread
 import pandas as pd
 import os
 
-gateway = "192.168.2.1"
+gateway = "192.168.1.1"
 def read_json_files(directory, stanum, test_number):
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -195,7 +195,7 @@ def read_json_files(directory, stanum, test_number):
                 excel_data.append(excel_result)
     excel_result["total failed"]=sta_error
     df = pd.DataFrame(excel_data)
-    output_dir = f"/home/mamad/Documents/mininetlab/{stanum}"
+    output_dir = f"/home/mamad/Documents/mininetlab/helmi/{stanum}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     output_file = f"{output_dir}/speedtest_{stanum}-{test_number}.xlsx"
@@ -235,8 +235,13 @@ servers = [
                 [41848, "Global Media Data Prima"],
                 [13825, "GMEDIA"],
                 [33207, "Lintas Data Prima"],
-                [36813, "Citranet"]
-            ]
+                [36813, "Citranet"],
+                [64330, "PT Sukma Sejati media"],
+                [62736, "KabelTelekom"],
+                [44425, "YAMNET"],
+                
+                [62249, "Amanna Media Link"]
+            ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
     results = [None] * len(sta_list)
@@ -548,7 +553,7 @@ def topology():
         for sta_name in sta_list:
             ap_position = aps[i].position
             sta_position = generate_random_position(ap_position, radius)
-            mac_address = f'02:00:00:00:{i:02x}:{len(stations):02x}'
+            mac_address = f'02:27:01:ff:{i:02x}:{len(stations):02x}'
             sta = net.addStation(sta_name, ip='0.0.0.0', position=sta_position, mode="n", channel="36", mac=mac_address)
             stations.append(sta)
             print(f"Added {sta_name} at position {sta_position} with MAC {mac_address}")
@@ -559,7 +564,7 @@ def topology():
     info("*** Simulating Interference\n")
     net.setPropagationModel(model="logDistance", exp=3.0)
 
-    h1 = net.addHost('h1', ip='0.0.0.0', mac='02:00:00:ff:ff:ff')
+    h1 = net.addHost('h1', ip='0.0.0.0', mac='02:00:00:ff:ff:01')
     h2 = net.addHost('h2', ip = '0.0.0.0')
     
     info("*** Adding controller\n")
@@ -591,7 +596,7 @@ def topology():
     net.addLink(s1, h2)
     
     info("*** Plotting Graph\n")
-    net.plotGraph( min_x=0, max_x=70,min_y = 0, max_y=80)
+    #net.plotGraph( min_x=0, max_x=70,min_y = 0, max_y=80)
     
     info("*** Starting network\n")
     net.build()
