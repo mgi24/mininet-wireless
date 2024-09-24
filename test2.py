@@ -19,6 +19,7 @@ import pandas as pd
 import os
 
 gateway = "192.168.1.1"
+adapter = 'ens192'
 def read_json_files(directory, stanum, test_number):
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -319,7 +320,7 @@ def run_speedtest(sta, server_port,server_name, results, index):
                 results[index] = result_json
             except:
                 try:
-                    result = '{"' + "error" + result.split('error')[-1]
+                    result = '{"error":' + result.split('"error":')[-1]
                     result_json = json.loads(result)
                 
                     results[index] = result_json
@@ -581,7 +582,7 @@ def topology():
     net.configureNodes()
 
     info('*** Adding physical interface ens33 >===< switch\n')
-    intf = Intf('ens37', node=s1)
+    intf = Intf(adapter, node=s1)
     
     info("*** Connecting Stations to AP\n")
     for i,(ap, sta_list)  in enumerate(sta_distribution.items()):

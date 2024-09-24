@@ -14,7 +14,7 @@ def myNetwork():
 
     info( '*** Add switches\n')
     s1 = net.addSwitch('s1')
-    Intf( 'ens37', node=s1 )
+    Intf( 'enp1s0', node=s1 )
 
     info( '*** Add hosts\n')
     h1 = net.addHost('h1', ip='0.0.0.0')
