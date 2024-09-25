@@ -19,7 +19,8 @@ import pandas as pd
 import os
 
 gateway = "192.168.2.1"
-adapter = 'ens33'
+adapter = 'ens192'
+xl_folder = '/home/mamad/Documents/mininetlab/pf/'
 def read_json_files(directory, stanum, test_number):
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -196,7 +197,7 @@ def read_json_files(directory, stanum, test_number):
                 excel_data.append(excel_result)
     excel_result["total failed"]=sta_error
     df = pd.DataFrame(excel_data)
-    output_dir = f"/home/mamad/Documents/mininetlab/pf/{stanum}"
+    output_dir = f"{xl_folder}{stanum}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     output_file = f"{output_dir}/speedtest_{stanum}-{test_number}.xlsx"
@@ -237,7 +238,7 @@ servers = [
                 [13825, "GMEDIA"],
                 [33207, "Lintas Data Prima"],
                 [36813, "Citranet"],
-                [60189, "PT Lintas Data Prima"],
+                [64330, "PT Sukma Sejati media"],
                 [62736, "KabelTelekom"],
                 [44425, "YAMNET"],
                 
@@ -305,18 +306,14 @@ def run_speedtest(sta, server_port,server_name, results, index):
     result = sta.cmd(f"speedtest -s {server_port} --format=json")
     print(f"test {sta.name} server {server_port} {server_name} done")
     
-    if "CLI" in result:
-        results[index] = json.loads('{"error": "CLI LIMIT"}')
-    elif "No servers defined" in result:
-        results[index] = json.loads('{"error": "SERVER NOT EXIST!!!"}')
-    else:
-        try:
-            result_json = json.loads(result)
-            results[index] = result_json
-            
-        except json.JSONDecodeError as e:
-        
-            #print(result)
+    try:
+        result_json = json.loads(result)
+        results[index] = result_json
+    except json.JSONDecodeError as e:
+        if "CLI" in result:
+            results[index] = json.loads('{"error": "CLI LIMIT"}')
+        else:
+            print(result)
             try:
                 result = '{' + '"type":"result"' + result.split('"type":"result"')[-1]
                 result_json = json.loads(result)
@@ -585,7 +582,7 @@ def topology():
     info("*** Configuring nodes\n")
     net.configureNodes()
 
-    info(f'*** Adding physical interface {adapter} >===< switch\n')
+    info('*** Adding physical interface ens33 >===< switch\n')
     intf = Intf(adapter, node=s1)
     
     info("*** Connecting Stations to AP\n")

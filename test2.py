@@ -20,6 +20,7 @@ import os
 
 gateway = "192.168.1.1"
 adapter = 'ens192'
+xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 def read_json_files(directory, stanum, test_number):
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -196,7 +197,7 @@ def read_json_files(directory, stanum, test_number):
                 excel_data.append(excel_result)
     excel_result["total failed"]=sta_error
     df = pd.DataFrame(excel_data)
-    output_dir = f"/home/mamad/Documents/mininetlab/helmi/{stanum}"
+    output_dir = f"{xl_folder}{stanum}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     output_file = f"{output_dir}/speedtest_{stanum}-{test_number}.xlsx"
