@@ -241,7 +241,9 @@ servers = [
                 [50344, "GSL Networks"],
                 [5935, "My Republic Singapore"],
                 [2054, "ViewQwest"],
-                [26654, "fdcservers.net"]
+                [26654, "fdcservers.net"],
+                [45345, "Melbikomas UAB "],
+                [14863, "SMA PASUNDAN 8 BANDUNG"]
             ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
