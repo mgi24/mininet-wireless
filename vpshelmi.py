@@ -18,9 +18,9 @@ from threading import Thread
 import pandas as pd
 import os
 
-gateway = "192.168.3.1"
-adapter = 'ens33'
-xl_folder = '/home/mamad/Documents/mininetlab/pf/'
+gateway = "192.168.1.1"
+adapter = 'enp2s0'
+xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 def read_json_files(directory, stanum, test_number):
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -234,14 +234,14 @@ def pinghost(net, host1, host2):
         print(f"Host {host1} or {host2} not found")
 
 servers = [
-                [41848, "Global Media Data Prima"],
-                [13825, "GMEDIA"],
-                [33207, "Lintas Data Prima"],
-                [36813, "Citranet"],
-                [63473, "PT CYB MEDIA GROUP"],
-                [62736, "KabelTelekom"],
-                [44425, "YAMNET"],
-                [62249, "Amanna Media Link"]
+                [4235 , " StarHub Ltd "],
+                [367, "New Media Express"],
+                [7311, "M1 Limited"],
+                [7556, "PT First Media"],
+                [50344, "GSL Networks"],
+                [5935, "My Republic Singapore"],
+                [2054, "ViewQwest"],
+                [26654, "fdcservers.net"]
             ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"

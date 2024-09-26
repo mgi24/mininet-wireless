@@ -19,7 +19,7 @@ import pandas as pd
 import os
 
 gateway = "192.168.1.1"
-adapter = 'enp7s0'
+adapter = 'ens33'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 def read_json_files(directory, stanum, test_number):
     json_files = []
@@ -238,7 +238,7 @@ servers = [
                 [13825, "GMEDIA"],
                 [33207, "Lintas Data Prima"],
                 [36813, "Citranet"],
-                [60189, "PT Lintas Data Prima"],
+                [63473, "PT CYB MEDIA GROUP"],
                 [62736, "KabelTelekom"],
                 [44425, "YAMNET"],
                 
