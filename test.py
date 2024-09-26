@@ -19,7 +19,7 @@ import pandas as pd
 import os
 
 gateway = "192.168.2.1"
-adapter = 'ens192'
+adapter = 'enp7s0'
 xl_folder = '/home/mamad/Documents/mininetlab/pf/'
 def read_json_files(directory, stanum, test_number):
     json_files = []
@@ -238,7 +238,7 @@ servers = [
                 [13825, "GMEDIA"],
                 [33207, "Lintas Data Prima"],
                 [36813, "Citranet"],
-                [64330, "PT Sukma Sejati media"],
+                [60189, "PT Lintas Data Prima"],
                 [62736, "KabelTelekom"],
                 [44425, "YAMNET"],
                 
@@ -306,14 +306,18 @@ def run_speedtest(sta, server_port,server_name, results, index):
     result = sta.cmd(f"speedtest -s {server_port} --format=json")
     print(f"test {sta.name} server {server_port} {server_name} done")
     
-    try:
-        result_json = json.loads(result)
-        results[index] = result_json
-    except json.JSONDecodeError as e:
-        if "CLI" in result:
-            results[index] = json.loads('{"error": "CLI LIMIT"}')
-        else:
-            print(result)
+    if "CLI" in result:
+        results[index] = json.loads('{"error": "CLI LIMIT"}')
+    elif "No servers defined" in result:
+        results[index] = json.loads('{"error": "SERVER NOT EXIST!!!"}')
+    else:
+        try:
+            result_json = json.loads(result)
+            results[index] = result_json
+            
+        except json.JSONDecodeError as e:
+        
+            #print(result)
             try:
                 result = '{' + '"type":"result"' + result.split('"type":"result"')[-1]
                 result_json = json.loads(result)
@@ -558,7 +562,7 @@ def topology():
         for sta_name in sta_list:
             ap_position = aps[i].position
             sta_position = generate_random_position(ap_position, radius)
-            mac_address = f'02:27:01:ff:{i:02x}:{len(stations):02x}'
+            mac_address = f'06:06:06:ff:{i:02x}:{len(stations):02x}'
             sta = net.addStation(sta_name, ip='0.0.0.0', position=sta_position, mode="n", channel="36", mac=mac_address)
             stations.append(sta)
             print(f"Added {sta_name} at position {sta_position} with MAC {mac_address}")
@@ -582,7 +586,7 @@ def topology():
     info("*** Configuring nodes\n")
     net.configureNodes()
 
-    info('*** Adding physical interface ens33 >===< switch\n')
+    info(f'*** Adding physical interface {adapter} >===< switch\n')
     intf = Intf(adapter, node=s1)
     
     info("*** Connecting Stations to AP\n")
