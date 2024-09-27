@@ -19,7 +19,7 @@ import pandas as pd
 import os
 
 gateway = "192.168.1.1"
-adapter = 'enp2s0'
+adapter = 'ens1'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 def read_json_files(directory, stanum, test_number):
     json_files = []
