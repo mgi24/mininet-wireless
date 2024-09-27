@@ -233,7 +233,10 @@ def pinghost(net, host1, host2):
         print(result)
         print(f"Host {host1} or {host2} not found")
 
-servers = [     [14863, "SMA PASUNDAN 8 BANDUNG"],
+servers = [     #[14863, "SMA PASUNDAN 8 BANDUNG"],
+                [31293, "Pacific Internet (S)"],
+                [41801, "IX Telecom"],
+                [44817, "SPTEL PTE. LTD."],
                 [4235 , " StarHub Ltd "],
                 [367, "New Media Express"],
                 [13623, "Singtel"],
