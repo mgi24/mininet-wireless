@@ -39,8 +39,8 @@ servers = [     #[14863, "SMA PASUNDAN 8 BANDUNG"],
                 [28921, "PhoenixNAP Global IT Services"],
                 [40508, "i3D.net"],
                 [50344, "GSL Networks"],
-                [41358, "Contabo"],
-                [13058, "PT Indosat Tbk"]
+                [41358, "Contabo"]
+                #[13058, "PT Indosat Tbk"]
             ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def read_json_files(directory, stanum, test_number):
     json_files = []
