@@ -18,9 +18,21 @@ from threading import Thread
 import pandas as pd
 import os
 
+iperfserver = '143.198.143.170'
 gateway = "192.168.1.1"
-adapter = 'ens33'
+adapter = 'enp9s0'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
+servers = [
+                [41848, "Global Media Data Prima"],
+                [13825, "GMEDIA"],
+                [33207, "Lintas Data Prima"],
+                [36813, "Citranet"],
+                [63473, "PT CYB MEDIA GROUP"],
+                [62736, "KabelTelekom"],
+                [44425, "YAMNET"],
+                
+                [62249, "Amanna Media Link"]
+            ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def read_json_files(directory, stanum, test_number):
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -233,17 +245,7 @@ def pinghost(net, host1, host2):
         print(result)
         print(f"Host {host1} or {host2} not found")
 
-servers = [
-                [41848, "Global Media Data Prima"],
-                [13825, "GMEDIA"],
-                [33207, "Lintas Data Prima"],
-                [36813, "Citranet"],
-                [63473, "PT CYB MEDIA GROUP"],
-                [62736, "KabelTelekom"],
-                [44425, "YAMNET"],
-                
-                [62249, "Amanna Media Link"]
-            ]#blacklist: INDOSAT(ping fail) KITANET(upload)
+
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
     results = [None] * len(sta_list)
@@ -299,7 +301,19 @@ def speedtest_process(sta_list):
 
 
 
-
+def run_iperf(sta, server_ip, results, index):
+    # Run the iperf3 command and capture the output
+    port = 5102 + index
+    result = sta.cmd(f"iperf3 -c {server_ip} -u -b 0 -p {port} --json")
+    print(f"iperf3 test {sta.name} to server {server_ip} done")
+    
+    try:
+        result_json = json.loads(result)
+        results[index] = result_json
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON for {sta.name}: {e}")
+        results[index] = {"error": "JSONDecodeError"}
+        print(result)
 
 def run_speedtest(sta, server_port,server_name, results, index):
     # Run the speedtest command and capture the output
@@ -355,6 +369,19 @@ class CustomCLI(CLI):
             for arg in args:
                 print(arg)
 
+    
+    def do_iperf(self, line):
+        threads = []
+        "Run iperf3 test on all stations: iperf"
+        results = [None] * len(self.mn.stations)
+        sta_list = self.mn.stations
+        for i, sta in enumerate(sta_list):
+            print(f"Starting iperf3 test on {sta.name}")
+            thread = Thread(target=run_iperf, args=(sta, iperfserver, results, i))
+            thread.start()
+            threads.append(thread)
+        for thread in threads:
+            thread.join()
     
 
 

@@ -19,6 +19,7 @@ import pandas as pd
 import os
 
 gateway = "192.168.3.1"
+iperfserver = "165.232.175.148"
 adapter = 'ens33'
 xl_folder = '/home/mamad/Documents/mininetlab/pf/'
 def read_json_files(directory, stanum, test_number):
@@ -355,7 +356,7 @@ class CustomCLI(CLI):
                 print(arg)
 
     
-
+    
 
     def do_speedtest(self, line):
         sta_list = self.mn.stations
