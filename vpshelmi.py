@@ -236,6 +236,7 @@ def pinghost(net, host1, host2):
 servers = [
                 [4235 , " StarHub Ltd "],
                 #[367, "New Media Express"],
+                [13626, "Singtel"]
                 [7311, "M1 Limited"],
                 [7556, "PT First Media"],
                 [50344, "GSL Networks"],
@@ -244,7 +245,8 @@ servers = [
                 [26654, "fdcservers.net"],
                 [45345, "Melbikomas UAB "],
                 [14863, "SMA PASUNDAN 8 BANDUNG"],
-                [28921, "PhoenixNAP Global IT Services"]
+                [28921, "PhoenixNAP Global IT Services"],
+                [40508, "i3D.net"]
             ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
