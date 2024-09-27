@@ -236,7 +236,7 @@ def pinghost(net, host1, host2):
 servers = [
                 [4235 , " StarHub Ltd "],
                 #[367, "New Media Express"],
-                [13626, "Singtel"]
+                [13626, "Singtel"],
                 [7311, "M1 Limited"],
                 [7556, "PT First Media"],
                 [50344, "GSL Networks"],
