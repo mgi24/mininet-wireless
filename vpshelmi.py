@@ -233,20 +233,20 @@ def pinghost(net, host1, host2):
         print(result)
         print(f"Host {host1} or {host2} not found")
 
-servers = [
+servers = [     [14863, "SMA PASUNDAN 8 BANDUNG"],
                 [4235 , " StarHub Ltd "],
                 #[367, "New Media Express"],
-                [13626, "Singtel"],
+                [13623, "Singtel"],
                 [7311, "M1 Limited"],
                 [7556, "PT First Media"],
-                [50344, "GSL Networks"],
                 [5935, "My Republic Singapore"],
                 [2054, "ViewQwest"],
                 [26654, "fdcservers.net"],
                 [45345, "Melbikomas UAB "],
-                [14863, "SMA PASUNDAN 8 BANDUNG"],
                 [28921, "PhoenixNAP Global IT Services"],
-                [40508, "i3D.net"]
+                [40508, "i3D.net"],
+                [50344, "GSL Networks"],
+                [38933, "CV. ATHA MEDIA PRIMA"]
             ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
