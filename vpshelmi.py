@@ -19,8 +19,29 @@ import pandas as pd
 import os
 
 gateway = "192.168.1.1"
-adapter = 'ens1'
+adapter = 'enp9s0'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
+servers = [     #[14863, "SMA PASUNDAN 8 BANDUNG"],
+                [37744, "Telekomunikasi Indonesia International Pte Ltd"],
+                [54359, "Matrix NAP Info"],
+                [31293, "Pacific Internet (S)"],
+                [41801, "IX Telecom"],
+                #[44817, "SPTEL PTE. LTD."],
+                [4235 , " StarHub Ltd "],
+                [367, "New Media Express"],
+                [13623, "Singtel"],
+                [7311, "M1 Limited"],
+                [7556, "PT First Media"],
+                [5935, "My Republic Singapore"],
+                [2054, "ViewQwest"],
+                [26654, "fdcservers.net"],
+                [45345, "Melbikomas UAB "],
+                [28921, "PhoenixNAP Global IT Services"],
+                [40508, "i3D.net"],
+                [50344, "GSL Networks"],
+                [41358, "Contabo"],
+                [13058, "PT Indosat Tbk"]
+            ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def read_json_files(directory, stanum, test_number):
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -233,25 +254,7 @@ def pinghost(net, host1, host2):
         print(result)
         print(f"Host {host1} or {host2} not found")
 
-servers = [     [14863, "SMA PASUNDAN 8 BANDUNG"],
-                [31293, "Pacific Internet (S)"],
-                [41801, "IX Telecom"],
-                #[44817, "SPTEL PTE. LTD."],
-                [4235 , " StarHub Ltd "],
-                [367, "New Media Express"],
-                [13623, "Singtel"],
-                [7311, "M1 Limited"],
-                [7556, "PT First Media"],
-                [5935, "My Republic Singapore"],
-                [2054, "ViewQwest"],
-                [26654, "fdcservers.net"],
-                [45345, "Melbikomas UAB "],
-                [28921, "PhoenixNAP Global IT Services"],
-                [40508, "i3D.net"],
-                [50344, "GSL Networks"],
-                [41358, "Contabo"],
-                [13058, "PT Indosat Tbk"]
-            ]#blacklist: INDOSAT(ping fail) KITANET(upload)
+
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
     results = [None] * len(sta_list)
