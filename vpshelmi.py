@@ -243,7 +243,8 @@ servers = [
                 [2054, "ViewQwest"],
                 [26654, "fdcservers.net"],
                 [45345, "Melbikomas UAB "],
-                [14863, "SMA PASUNDAN 8 BANDUNG"]
+                [14863, "SMA PASUNDAN 8 BANDUNG"],
+                [28921, "PhoenixNAP Global IT Services"]
             ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
