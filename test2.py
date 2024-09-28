@@ -343,9 +343,24 @@ def run_iperf(sta, server_ip, results, index):
     port = 5201 + index
     print(f"Starting iperf3 test on {sta.name} port {port}")
     result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} --json")
-    print(f"iperf3 test {sta.name} to server {server_ip} done")
+    print(f"iperf3 UPLOAD {sta.name} to server {server_ip}:{port} done")
     try:
-        result_file = f'/home/mamad/Documents/mininetlab/result/iperf{sta.name}.json'
+        result_file = f'/home/mamad/Documents/mininetlab/result/upload/iperf{sta.name}.json'
+        data = json.loads(result)
+        data['rssi'] = sta.wintfs[0].rssi
+        with open(result_file, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"Result saved to {result_file}")
+
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON for {sta.name}: {e}")
+        results[index] = {"error": "JSONDecodeError"}
+        print(result)
+    print(f"Starting DOWNLOAD test on {sta.name} port {port}")
+    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} -R -t 10 --json")
+    print(f"DOWNLOAD test on {sta.name} port {port} done")
+    try:
+        result_file = f'/home/mamad/Documents/mininetlab/result/download/iperf{sta.name}.json'
         data = json.loads(result)
         data['rssi'] = sta.wintfs[0].rssi
         with open(result_file, 'w') as f:
@@ -364,7 +379,8 @@ class CustomCLI(CLI):
         results = [None] * len(self.mn.stations)
         sta_list = self.mn.stations
         print("removing previous run json...")
-        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result && rm -f *')
+        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
+        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
         for i, sta in enumerate(sta_list):
             thread = Thread(target=run_iperf, args=(sta, iperfserver, results, i))
             thread.start()
