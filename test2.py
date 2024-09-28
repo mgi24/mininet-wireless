@@ -225,7 +225,6 @@ def read_json_files(directory, stanum, test_number):
     total_upload_speed_mbps = total_upload_speed / 1000000
     total_download_speed_mbps = total_download_speed / 1000000
     
-
 def pinghost(net, host1, host2):
     h1 = net.get(host1)
     h2 = net.get(host2)
@@ -244,7 +243,6 @@ def pinghost(net, host1, host2):
             print("Failed to retrieve IP for h1 or h2")
         print(result)
         print(f"Host {host1} or {host2} not found")
-
 
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
@@ -298,11 +296,6 @@ def speedtest_process(sta_list):
     else:
         print("No STAs found")
 
-
-
-
-
-
 def run_speedtest(sta, server_port,server_name, results, index):
     # Run the speedtest command and capture the output
     result = sta.cmd(f"speedtest -s {server_port} --format=json")
@@ -342,7 +335,7 @@ def run_iperf(sta, server_ip, results, index):
     # Run the iperf3 command and capture the output
     port = 5201 + index
     print(f"Starting iperf3 test on {sta.name} port {port}")
-    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} --json")
+    result = sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {port} -t 10 --json")
     print(f"iperf3 UPLOAD {sta.name} to server {server_ip}:{port} done")
     try:
         result_file = f'/home/mamad/Documents/mininetlab/result/upload/{sta.name}.json'
@@ -356,7 +349,7 @@ def run_iperf(sta, server_ip, results, index):
         results[index] = {"error": "JSONDecodeError"}
         print(result)
     print(f"Starting DOWNLOAD test on {sta.name} port {port}")
-    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -R -p {port} -t 10 -l 128 --json")
+    result = sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -R -p {port} -t 10 --json")
     print(f"DOWNLOAD test on {sta.name} port {port} done")
     try:
         result_file = f'/home/mamad/Documents/mininetlab/result/download/{sta.name}.json'
@@ -430,7 +423,7 @@ class CustomCLI(CLI):
             time.sleep(0.1)
         for thread in threads:
             thread.join()
-        combine_iperf_results_to_excel("/home/mamad/Documents/mininetlab/result/upload", len(sta_list))
+        #combine_iperf_results_to_excel("/home/mamad/Documents/mininetlab/result/upload", len(sta_list))
 
 
 
