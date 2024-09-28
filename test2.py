@@ -357,7 +357,7 @@ def run_iperf(sta, server_ip, results, index):
         results[index] = {"error": "JSONDecodeError"}
         print(result)
     print(f"Starting DOWNLOAD test on {sta.name} port {port}")
-    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} -R -t 10 --json")
+    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -R -p {port} -t 10 --json")
     print(f"DOWNLOAD test on {sta.name} port {port} done")
     try:
         result_file = f'/home/mamad/Documents/mininetlab/result/download/iperf{sta.name}.json'
