@@ -301,20 +301,7 @@ def speedtest_process(sta_list):
 
 
 
-def run_iperf(sta, server_ip, results, index):
-    # Run the iperf3 command and capture the output
-    port = 5201 + index
-    print(f"Starting iperf3 test on {sta.name} port {port}")
-    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} --json")
-    print(f"iperf3 test {sta.name} to server {server_ip} done")
-    
-    try:
-        result_json = json.loads(result)
-        results[index] = result_json
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON for {sta.name}: {e}")
-        results[index] = {"error": "JSONDecodeError"}
-        print(result)
+
 
 def run_speedtest(sta, server_port,server_name, results, index):
     # Run the speedtest command and capture the output
@@ -348,7 +335,50 @@ def run_speedtest(sta, server_port,server_name, results, index):
                     print(result)
                     print(f"Error decoding JSON for {sta.name}: {e}")
 
+
+
+
+def run_iperf(sta, server_ip, results, index):
+    # Run the iperf3 command and capture the output
+    port = 5201 + index
+    print(f"Starting iperf3 test on {sta.name} port {port}")
+    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} --json")
+    print(f"iperf3 test {sta.name} to server {server_ip} done")
+    
+
+    try:
+        data = json.loads(json.dumps(result))
+        
+        data['rssi'] = sta.wintfs[0].rssi
+        result_file = f'/home/mamad/Documents/mininetlab/result/sta{index+1}.json'
+        with open(result_file, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"Result saved to {result_file}")
+
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON for {sta.name}: {e}")
+        results[index] = {"error": "JSONDecodeError"}
+        print(result)
+
 class CustomCLI(CLI):
+    def do_iperf(self, line):
+        threads = []
+        "Run iperf3 test on all stations: iperf"
+        results = [None] * len(self.mn.stations)
+        sta_list = self.mn.stations
+        print("removing previous run json...")
+        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result && rm -f *')
+        for i, sta in enumerate(sta_list):
+            thread = Thread(target=run_iperf, args=(sta, iperfserver, results, i))
+            thread.start()
+            threads.append(thread)
+        for thread in threads:
+            thread.join()
+
+
+
+
+
     def do_pinghost(self, line):
         "Ping test: pinghost <host1> <host2>"
         args = line.split()
@@ -371,17 +401,7 @@ class CustomCLI(CLI):
                 print(arg)
 
     
-    def do_iperf(self, line):
-        threads = []
-        "Run iperf3 test on all stations: iperf"
-        results = [None] * len(self.mn.stations)
-        sta_list = self.mn.stations
-        for i, sta in enumerate(sta_list):
-            thread = Thread(target=run_iperf, args=(sta, iperfserver, results, i))
-            thread.start()
-            threads.append(thread)
-        for thread in threads:
-            thread.join()
+
     
 
 
