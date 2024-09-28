@@ -18,9 +18,9 @@ from threading import Thread
 import pandas as pd
 import os
 
-iperfserver = '143.198.1.1'
-gateway = "192.168.122.1"
-adapter = 'ens33'
+iperfserver = '143.198.143.170'
+gateway = "192.168.1.1"
+adapter = 'ensp9s0'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 servers = [
                 [41848, "Global Media Data Prima"],
