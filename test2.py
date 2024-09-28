@@ -20,7 +20,7 @@ import os
 
 iperfserver = '143.198.143.170'
 gateway = "192.168.1.1"
-adapter = 'ens33'
+adapter = 'enp9s0'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 servers = [
                 [41848, "Global Media Data Prima"],
