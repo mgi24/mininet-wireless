@@ -415,7 +415,8 @@ def combine_iperf_results_to_excel(directory, stanum):
     df.to_excel(output_file, index=False)
 
         
-
+class CustomCLI(CLI):
+    
     def do_iperf(self, line):
         threads = []
         "Run iperf3 test on all stations: iperf"
