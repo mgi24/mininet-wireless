@@ -20,7 +20,7 @@ import os
 
 iperfserver = '143.198.143.170'
 gateway = "192.168.1.1"
-adapter = 'enp9s0'
+adapter = 'ens33'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 servers = [
                 [41848, "Global Media Data Prima"],
@@ -350,14 +350,13 @@ def run_iperf(sta, server_ip, results, index):
         data['rssi'] = sta.wintfs[0].rssi
         with open(result_file, 'w') as f:
             json.dump(data, f, indent=4)
-        print(f"Result saved to {result_file}")
 
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON for {sta.name}: {e}")
         results[index] = {"error": "JSONDecodeError"}
         print(result)
     print(f"Starting DOWNLOAD test on {sta.name} port {port}")
-    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -R -p {port} -t 10 --json")
+    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -R -p {port} -t 10 -l 128 --json")
     print(f"DOWNLOAD test on {sta.name} port {port} done")
     try:
         result_file = f'/home/mamad/Documents/mininetlab/result/download/{sta.name}.json'
@@ -365,7 +364,6 @@ def run_iperf(sta, server_ip, results, index):
         data['rssi'] = sta.wintfs[0].rssi
         with open(result_file, 'w') as f:
             json.dump(data, f, indent=4)
-        print(f"Result saved to {result_file}")
 
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON for {sta.name}: {e}")
@@ -416,7 +414,7 @@ def combine_iperf_results_to_excel(directory, stanum):
 
         
 class CustomCLI(CLI):
-    
+
     def do_iperf(self, line):
         threads = []
         "Run iperf3 test on all stations: iperf"
@@ -429,6 +427,7 @@ class CustomCLI(CLI):
             thread = Thread(target=run_iperf, args=(sta, iperfserver, results, i))
             thread.start()
             threads.append(thread)
+            time.sleep(0.1)
         for thread in threads:
             thread.join()
         combine_iperf_results_to_excel("/home/mamad/Documents/mininetlab/result/upload", len(sta_list))
