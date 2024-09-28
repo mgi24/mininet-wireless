@@ -344,13 +344,10 @@ def run_iperf(sta, server_ip, results, index):
     print(f"Starting iperf3 test on {sta.name} port {port}")
     result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} --json")
     print(f"iperf3 test {sta.name} to server {server_ip} done")
-    
-
     try:
-        data = json.loads(json.dumps(result))
-        
+        result_file = f'/home/mamad/Documents/mininetlab/result/iperf{sta.name}.json'
+        data = json.loads(result)
         data['rssi'] = sta.wintfs[0].rssi
-        result_file = f'/home/mamad/Documents/mininetlab/result/sta{index+1}.json'
         with open(result_file, 'w') as f:
             json.dump(data, f, indent=4)
         print(f"Result saved to {result_file}")
