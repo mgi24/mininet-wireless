@@ -345,7 +345,7 @@ def run_iperf(sta, server_ip, results, index):
     result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} --json")
     print(f"iperf3 UPLOAD {sta.name} to server {server_ip}:{port} done")
     try:
-        result_file = f'/home/mamad/Documents/mininetlab/result/upload/iperf{sta.name}.json'
+        result_file = f'/home/mamad/Documents/mininetlab/result/upload/{sta.name}.json'
         data = json.loads(result)
         data['rssi'] = sta.wintfs[0].rssi
         with open(result_file, 'w') as f:
@@ -360,7 +360,7 @@ def run_iperf(sta, server_ip, results, index):
     result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -R -p {port} -t 10 --json")
     print(f"DOWNLOAD test on {sta.name} port {port} done")
     try:
-        result_file = f'/home/mamad/Documents/mininetlab/result/download/iperf{sta.name}.json'
+        result_file = f'/home/mamad/Documents/mininetlab/result/download/{sta.name}.json'
         data = json.loads(result)
         data['rssi'] = sta.wintfs[0].rssi
         with open(result_file, 'w') as f:
@@ -372,7 +372,50 @@ def run_iperf(sta, server_ip, results, index):
         results[index] = {"error": "JSONDecodeError"}
         print(result)
 
-class CustomCLI(CLI):
+
+
+def combine_iperf_results_to_excel(directory, stanum):
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                json_files.append(os.path.join(root, file))
+
+    json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
+    excel_data = []
+    for file in json_files:
+        with open(file) as f:
+            sta_name = os.path.splitext(os.path.basename(file))[0]
+            data=[]
+            data = json.load(f)
+            excel_result = {
+                "station": sta_name,
+                "timestamp": data['start']['timestamp']['time'],
+                "start": data['end']['sum']['start'],
+                "end": data['end']['sum']['end'],
+                "bytes": data['end']['sum']['bytes'],
+                "bits_per_second": data['end']['sum']['bits_per_second'],
+                "jitter_ms": data['end']['sum']['jitter_ms'],
+                "lost_packets": data['end']['sum']['lost_packets'],
+                "packets": data['end']['sum']['packets'],
+                "loss_percent": data['end']['sum']['lost_percent'],
+                "out_of_order": data['end']['sum']['out_of_order'],
+                "sender": data['end']['sum']['sender'],
+                "cpu host total": data['end']['cpu_utilization_percent']['host_total'],
+                "cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
+                "rssi":data['rssi']
+            }
+            excel_data.append(excel_result)
+    excel_result["total failed"]=stanum-len(json_files)
+    df = pd.DataFrame(excel_data)
+    output_dir = f"{xl_folder}{stanum}"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    output_file = f"{output_dir}/speedtest_{stanum}.xlsx"
+    df.to_excel(output_file, index=False)
+
+        
+
     def do_iperf(self, line):
         threads = []
         "Run iperf3 test on all stations: iperf"
@@ -387,6 +430,7 @@ class CustomCLI(CLI):
             threads.append(thread)
         for thread in threads:
             thread.join()
+        combine_iperf_results_to_excel("/home/mamad/Documents/mininetlab/result/upload", len(sta_list))
 
 
 
