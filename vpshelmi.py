@@ -18,7 +18,7 @@ from threading import Thread
 import pandas as pd
 import os
 
-gateway = "192.168.1.1"
+gateway = "192.168.122.1"
 adapter = 'enp9s0'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 servers = [     #[14863, "SMA PASUNDAN 8 BANDUNG"],

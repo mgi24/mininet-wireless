@@ -20,7 +20,7 @@ import os
 
 iperfserver = '143.198.143.170'
 gateway = "192.168.1.1"
-adapter = 'enp9s0'
+adapter = 'ens33'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
 servers = [
                 [41848, "Global Media Data Prima"],
@@ -303,8 +303,9 @@ def speedtest_process(sta_list):
 
 def run_iperf(sta, server_ip, results, index):
     # Run the iperf3 command and capture the output
-    port = 5102 + index
-    result = sta.cmd(f"iperf3 -c {server_ip} -u -b 0 -p {port} --json")
+    port = 5201 + index
+    print(f"Starting iperf3 test on {sta.name} port {port}")
+    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} --json")
     print(f"iperf3 test {sta.name} to server {server_ip} done")
     
     try:
@@ -376,7 +377,6 @@ class CustomCLI(CLI):
         results = [None] * len(self.mn.stations)
         sta_list = self.mn.stations
         for i, sta in enumerate(sta_list):
-            print(f"Starting iperf3 test on {sta.name}")
             thread = Thread(target=run_iperf, args=(sta, iperfserver, results, i))
             thread.start()
             threads.append(thread)
