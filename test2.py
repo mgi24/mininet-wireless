@@ -411,6 +411,7 @@ class CustomCLI(CLI):
             pid2 = sta.cmd(f"echo $!")
             pidmtr.append((sta.name, pid2))
             print(f"Started mtr on {sta.name} with PID {pid2}")
+            delay(0.1)
         while pidiperf or pidmtr:
             for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
                 for sta_name, pid in pid_list[:]:
