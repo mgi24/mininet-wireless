@@ -361,6 +361,7 @@ def combine_iperf_results_to_excel(stanum):
         with open(file) as f:
             sta_name = os.path.splitext(os.path.basename(file))[0]
             data=[]
+            print(f"Checking {f}")
             data = json.load(f)
             excel_result = {
                 "station": sta_name,
@@ -393,6 +394,7 @@ def combine_iperf_results_to_excel(stanum):
     for i, file in enumerate(json_files):
         with open(file) as f:
             sta_name = os.path.splitext(os.path.basename(file))[0]
+            print(f"Checking {f}")
             data=[]
             excel_result = {
                 "station": sta_name,
@@ -442,7 +444,7 @@ class CustomCLI(CLI):
     def do_processdata(self, line):
         sta_list = self.mn.stations
         combine_iperf_results_to_excel(len(sta_list))
-        
+
     def do_iperf(self, line):
         args = line.split()
         if len(args) != 1:
