@@ -335,7 +335,7 @@ def run_iperf(sta, server_ip, results, index):
     # Run the iperf3 command and capture the output
     port = 5201 + index
     print(f"Starting iperf3 test on {sta.name} port {port}")
-    result = sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {port} -t 10 --json")
+    result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} -t 10 --json")
     print(f"iperf3 UPLOAD {sta.name} to server {server_ip}:{port} done")
     try:
         result_file = f'/home/mamad/Documents/mininetlab/result/upload/{sta.name}.json'
