@@ -396,8 +396,10 @@ def combine_iperf_results_to_excel(stanum):
             sta_name = os.path.splitext(os.path.basename(file))[0]
             print(f"Checking {f}")
             data=[]
+            data = json.load(f)
             excel_result = {
                 "station": sta_name,
+                "download timestamp": data['start']['timestamp']['time'],
                 "upload timestamp": data['start']['timestamp']['time'],
                 "upload start": data['end']['streams'][0]['sender']['start'],
                 "upload end": data['end']['streams'][0]['sender']['end'],
