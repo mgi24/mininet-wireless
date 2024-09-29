@@ -417,7 +417,14 @@ def combine_iperf_results_to_excel(stanum):
                 "upload total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
             }
             if i < len(excel_data):
-                excel_data[i].update(excel_result)
+                for key, value in excel_result.items():
+                    if key in excel_data[i]:
+                        if isinstance(excel_data[i][key], list):
+                            excel_data[i][key].append(value)
+                        else:
+                            excel_data[i][key] = [excel_data[i][key], value]
+                    else:
+                        excel_data[i][key] = value
             else:
                 excel_data.append(excel_result)
     print(f"DONE GETTING DATA UPLOAD")
