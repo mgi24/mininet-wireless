@@ -401,7 +401,7 @@ class CustomCLI(CLI):
         sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
         sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
         for i, sta in enumerate(sta_list):
-            thread = Thread(target=run_general, args=(sta, 'upload', f"iperf3 -c 143.198.143.170 -u -b 0 -p {5201+i} -t 10 --json"))
+            thread = Thread(target=run_general, args=(sta, 'upload', f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 --json"))
             thread.start()
             threads.append(thread)
             mtr_thread = Thread(target=run_general, args=(sta, 'pingdownload', f"mtr -u -c 100 -i 0.1 143.198.143.170 -j"))
