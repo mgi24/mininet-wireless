@@ -347,7 +347,8 @@ def run_general(sta,resultfolder, command):
 
 
 
-def combine_iperf_results_to_excel(directory, stanum):
+def combine_iperf_results_to_excel(stanum):
+    directory = '/home/mamad/Documents/mininetlab/result/download'
     json_files = []
     for root, dirs, files in os.walk(directory):
         for file in files:
@@ -363,22 +364,71 @@ def combine_iperf_results_to_excel(directory, stanum):
             data = json.load(f)
             excel_result = {
                 "station": sta_name,
-                "timestamp": data['start']['timestamp']['time'],
-                "start": data['end']['sum']['start'],
-                "end": data['end']['sum']['end'],
-                "bytes": data['end']['sum']['bytes'],
-                "bits_per_second": data['end']['sum']['bits_per_second'],
-                "jitter_ms": data['end']['sum']['jitter_ms'],
-                "lost_packets": data['end']['sum']['lost_packets'],
-                "packets": data['end']['sum']['packets'],
-                "loss_percent": data['end']['sum']['lost_percent'],
-                "out_of_order": data['end']['sum']['out_of_order'],
-                "sender": data['end']['sum']['sender'],
-                "cpu host total": data['end']['cpu_utilization_percent']['host_total'],
-                "cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
-                "rssi":data['rssi']
+                "download timestamp": data['start']['timestamp']['time'],
+                "download start": data['end']['streams'][0]['sender']['start'],
+                "download end": data['end']['streams'][0]['sender']['end'],
+                "download bytes sent": data['end']['streams'][0]['sender']['bytes'],
+                "download bits_per_second sent": data['end']['streams'][0]['sender']['bits_per_second'],
+                "download retransmits": data['end']['streams'][0]['sender']['retransmits'],
+                "download max congestion window": data['end']['streams'][0]['sender']['max_snd_cwnd'],
+                "download delay max": data['end']['streams'][0]['sender']['max_rtt'],
+                "download delay min": data['end']['streams'][0]['sender']['min_rtt'],
+                "download delay avg": data['end']['streams'][0]['sender']['rtt'],
+                "download bytes received": data['end']['streams'][0]['receiver']['bytes'],
+                "download bits_per_second received": data['end']['streams'][0]['receiver']['bits_per_second'],
+                "download cpu host total": data['end']['cpu_utilization_percent']['host_total'],
+                "download cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
+                "download total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
             }
             excel_data.append(excel_result)
+    print(f"DONE GETTING DATA DOWNLOAD")
+    directory = '/home/mamad/Documents/mininetlab/result/upload'
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                json_files.append(os.path.join(root, file))
+
+    json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
+    for i, file in enumerate(json_files):
+        with open(file) as f:
+            sta_name = os.path.splitext(os.path.basename(file))[0]
+            data=[]
+            excel_result = {
+                "station": sta_name,
+                "upload timestamp": data['start']['timestamp']['time'],
+                "upload start": data['end']['streams'][0]['sender']['start'],
+                "upload end": data['end']['streams'][0]['sender']['end'],
+                "upload bytes sent": data['end']['streams'][0]['sender']['bytes'],
+                "upload bits_per_second sent": data['end']['streams'][0]['sender']['bits_per_second'],
+                "upload retransmits": data['end']['streams'][0]['sender']['retransmits'],
+                "upload max congestion window": data['end']['streams'][0]['sender']['max_snd_cwnd'],
+                "upload delay max": data['end']['streams'][0]['sender']['max_rtt'],
+                "upload delay min": data['end']['streams'][0]['sender']['min_rtt'],
+                "upload delay avg": data['end']['streams'][0]['sender']['rtt'],
+                "upload bytes received": data['end']['streams'][0]['receiver']['bytes'],
+                "upload bits_per_second received": data['end']['streams'][0]['receiver']['bits_per_second'],
+                "upload cpu host total": data['end']['cpu_utilization_percent']['host_total'],
+                "upload cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
+                "upload total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
+            }
+            if i < len(excel_data):
+                excel_data[i].update(excel_result)
+            else:
+                excel_data.append(excel_result)
+    print(f"DONE GETTING DATA UPLOAD")
+    
+
+
+
+
+
+
+
+
+
+
+
     excel_result["total failed"]=stanum-len(json_files)
     df = pd.DataFrame(excel_data)
     output_dir = f"{xl_folder}{stanum}"
@@ -389,8 +439,20 @@ def combine_iperf_results_to_excel(directory, stanum):
 
         
 class CustomCLI(CLI):
-
+    def do_processdata(self, line):
+        sta_list = self.mn.stations
+        combine_iperf_results_to_excel(len(sta_list))
+        
     def do_iperf(self, line):
+        args = line.split()
+        if len(args) != 1:
+            print("Usage: iperf <num>")
+            return
+        try:
+            num = int(args[0])
+        except ValueError:
+            print("Invalid number")
+            return
         threads = []
         "Run iperf3 test on all stations: iperf"
         results = [None] * len(self.mn.stations)
@@ -402,46 +464,48 @@ class CustomCLI(CLI):
         sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
         pidiperf = []
         pidmtr = []
-        for i, sta in enumerate(sta_list):
-            sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 --json > /home/mamad/Documents/mininetlab/result/upload/{sta.name}.json &")
-            pid = sta.cmd(f"echo $!")
-            pidiperf.append((sta.name, pid))
-            print(f"Started iperf3 on {sta.name} with PID {pid}")
-            sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
-            pid2 = sta.cmd(f"echo $!")
-            pidmtr.append((sta.name, pid2))
-            print(f"Started mtr on {sta.name} with PID {pid2}")
-            time.sleep(0.1)
-        while pidiperf or pidmtr:
-            for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
-                for sta_name, pid in pid_list[:]:
-                    if not os.path.exists(f"/proc/{pid.strip()}"):
-                        print(f"{name} process on {sta_name} is done")
-                        pid_list.remove((sta_name, pid))
-            
-            time.sleep(1)
-        print("ALL UPLOAD PROCESS DONE")
-        for i, sta in enumerate(sta_list):
-            sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
-            pid = sta.cmd(f"echo $!")
-            pidiperf.append((sta.name, pid))
-            print(f"Started iperf3 on {sta.name} with PID {pid}")
-            sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingdownload/{sta.name}.json &")
-            pid2 = sta.cmd(f"echo $!")
-            pidmtr.append((sta.name, pid2))
-            print(f"Started mtr on {sta.name} with PID {pid2}")
-            time.sleep(0.1)
-        while pidiperf or pidmtr:
-            for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
-                for sta_name, pid in pid_list[:]:
-                    if not os.path.exists(f"/proc/{pid.strip()}"):
-                        print(f"{name} process on {sta_name} is done")
-                        pid_list.remove((sta_name, pid))
-            
-            time.sleep(1)
-        print("ALL DOWNLOAD PROCESS DONE")
+        for test in range(num):
 
-        #combine_iperf_results_to_excel("/home/mamad/Documents/mininetlab/result/upload", len(sta_list))
+            for i, sta in enumerate(sta_list):
+                sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 --json > /home/mamad/Documents/mininetlab/result/upload/{sta.name}.json &")
+                pid = sta.cmd(f"echo $!")
+                pidiperf.append((sta.name, pid))
+                print(f"Started iperf3 on {sta.name} with PID {pid}")
+                sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
+                pid2 = sta.cmd(f"echo $!")
+                pidmtr.append((sta.name, pid2))
+                print(f"Started mtr on {sta.name} with PID {pid2}")
+                time.sleep(0.1)
+            while pidiperf or pidmtr:
+                for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
+                    for sta_name, pid in pid_list[:]:
+                        if not os.path.exists(f"/proc/{pid.strip()}"):
+                            print(f"{name} process on {sta_name} is done")
+                            pid_list.remove((sta_name, pid))
+                
+                time.sleep(1)
+            print("ALL UPLOAD PROCESS DONE")
+            for i, sta in enumerate(sta_list):
+                sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
+                pid = sta.cmd(f"echo $!")
+                pidiperf.append((sta.name, pid))
+                print(f"Started iperf3 on {sta.name} with PID {pid}")
+                sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingdownload/{sta.name}.json &")
+                pid2 = sta.cmd(f"echo $!")
+                pidmtr.append((sta.name, pid2))
+                print(f"Started mtr on {sta.name} with PID {pid2}")
+                time.sleep(0.1)
+            while pidiperf or pidmtr:
+                for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
+                    for sta_name, pid in pid_list[:]:
+                        if not os.path.exists(f"/proc/{pid.strip()}"):
+                            print(f"{name} process on {sta_name} is done")
+                            pid_list.remove((sta_name, pid))
+                
+                time.sleep(1)
+            print("ALL DOWNLOAD PROCESS DONE")
+
+        
 
 
 
