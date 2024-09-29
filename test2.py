@@ -407,7 +407,7 @@ class CustomCLI(CLI):
             pid = sta.cmd(f"echo $!")
             pidiperf.append((sta.name, pid))
             print(f"Started iperf3 on {sta.name} with PID {pid}")
-            sta.cmd(f"mtr -u -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
+            sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
             pid2 = sta.cmd(f"echo $!")
             pidmtr.append((sta.name, pid2))
             print(f"Started mtr on {sta.name} with PID {pid2}")
@@ -420,6 +420,26 @@ class CustomCLI(CLI):
                         pid_list.remove((sta_name, pid))
             
             time.sleep(1)
+        print("ALL UPLOAD PROCESS DONE")
+        for i, sta in enumerate(sta_list):
+            sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
+            pid = sta.cmd(f"echo $!")
+            pidiperf.append((sta.name, pid))
+            print(f"Started iperf3 on {sta.name} with PID {pid}")
+            sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingdownload/{sta.name}.json &")
+            pid2 = sta.cmd(f"echo $!")
+            pidmtr.append((sta.name, pid2))
+            print(f"Started mtr on {sta.name} with PID {pid2}")
+            time.sleep(0.1)
+        while pidiperf or pidmtr:
+            for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
+                for sta_name, pid in pid_list[:]:
+                    if not os.path.exists(f"/proc/{pid.strip()}"):
+                        print(f"{name} process on {sta_name} is done")
+                        pid_list.remove((sta_name, pid))
+            
+            time.sleep(1)
+        print("ALL DOWNLOAD PROCESS DONE")
 
         #combine_iperf_results_to_excel("/home/mamad/Documents/mininetlab/result/upload", len(sta_list))
 
