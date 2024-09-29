@@ -383,6 +383,8 @@ def combine_iperf_results_to_excel(stanum):
             }
             excel_data.append(excel_result)
     print(f"DONE GETTING DATA DOWNLOAD")
+
+
     directory = '/home/mamad/Documents/mininetlab/result/upload'
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -428,6 +430,100 @@ def combine_iperf_results_to_excel(stanum):
             else:
                 excel_data.append(excel_result)
     print(f"DONE GETTING DATA UPLOAD")
+
+    directory = '/home/mamad/Documents/mininetlab/result/pingupload'
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                json_files.append(os.path.join(root, file))
+
+    json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
+    for i, file in enumerate(json_files):
+        with open(file) as f:
+            sta_name = os.path.splitext(os.path.basename(file))[0]
+            print(f"Checking {f}")
+            data=[]
+            data = json.load(f)
+            try:
+                excel_result = {
+                    "station": sta_name,
+                    "host": data['report']['hubs'][0]['host'],
+                    "upload loss": data['report']['hubs'][0]['Loss%'],
+                    "upload delay avg": data['report']['hubs'][0]['Avg'],
+                    "upload delay min": data['report']['hubs'][0]['Best'],
+                    "upload delay max": data['report']['hubs'][0]['Wrst'],
+                    "upload jitter std": data['report']['hubs'][0]['StDev']
+                }
+            except KeyError as e:
+                excel_result = {
+                    "station": sta_name,
+                    "host": "error",
+                    "upload loss": "error",
+                    "upload delay avg": "error",
+                    "upload delay min": "error",
+                    "upload delay max": "error",
+                    "upload jitter std": "error"
+                }
+            if i < len(excel_data):
+                for key, value in excel_result.items():
+                    if key in excel_data[i]:
+                        if isinstance(excel_data[i][key], list):
+                            excel_data[i][key].append(value)
+                        else:
+                            excel_data[i][key] = [excel_data[i][key], value]
+                    else:
+                        excel_data[i][key] = value
+            else:
+                excel_data.append(excel_result)
+    print(f"DONE GETTING DATA PING UPLOAD")
+
+    directory = '/home/mamad/Documents/mininetlab/result/pingdownload'
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                json_files.append(os.path.join(root, file))
+
+    json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
+    for i, file in enumerate(json_files):
+        with open(file) as f:
+            sta_name = os.path.splitext(os.path.basename(file))[0]
+            print(f"Checking {f}")
+            data=[]
+            data = json.load(f)
+            try:
+                excel_result = {
+                    "station": sta_name,
+                    "host": data['report']['hubs'][0]['host'],
+                    "download loss": data['report']['hubs'][0]['Loss%'],
+                    "download delay avg": data['report']['hubs'][0]['Avg'],
+                    "download delay min": data['report']['hubs'][0]['Best'],
+                    "download delay max": data['report']['hubs'][0]['Wrst'],
+                    "download jitter std": data['report']['hubs'][0]['StDev']
+                }
+            except KeyError as e:
+                excel_result = {
+                    "station": sta_name,
+                    "host": "error",
+                    "download loss": "error",
+                    "download delay avg": "error",
+                    "download delay min": "error",
+                    "download delay max": "error",
+                    "download jitter std": "error"
+                }
+            if i < len(excel_data):
+                for key, value in excel_result.items():
+                    if key in excel_data[i]:
+                        if isinstance(excel_data[i][key], list):
+                            excel_data[i][key].append(value)
+                        else:
+                            excel_data[i][key] = [excel_data[i][key], value]
+                    else:
+                        excel_data[i][key] = value
+            else:
+                excel_data.append(excel_result)
+    print(f"DONE GETTING DATA PING DOWNLOAD")
     
 
 
