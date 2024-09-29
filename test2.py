@@ -329,13 +329,28 @@ def run_speedtest(sta, server_port,server_name, results, index):
                     print(f"Error decoding JSON for {sta.name}: {e}")
 
 
-
+def run_mtr(sta, server_ip, file):
+    # Run the mtr command and capture the output
+    print(f"Starting mtr test {file} on {sta.name} to server {server_ip}")
+    result = sta.cmd(f"mtr -r -c 100 -i 0.1 {server_ip} -j")
+    print(f"mtr {file} test on {sta.name} to server {server_ip} done")
+    try:
+        result_file = f'/home/mamad/Documents/mininetlab/result/ping{file}/{sta.name}.json'
+        data = json.loads(result)
+        with open(result_file, 'w') as f:
+            json.dump(data, f, indent=4)
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON for {sta.name}: {e}")
+        print(result)
 
 def run_iperf(sta, server_ip, results, index):
     # Run the iperf3 command and capture the output
     port = 5201 + index
     print(f"Starting iperf3 test on {sta.name} port {port}")
     result = sta.cmd(f"iperf3 -c 143.198.143.170 -u -b 0 -p {port} -t 10 --json")
+    # Run mtr in a new thread
+    thread = Thread(target=run_mtr, args=(sta, server_ip, 'upload'))
+    thread.start()
     print(f"iperf3 UPLOAD {sta.name} to server {server_ip}:{port} done")
     try:
         result_file = f'/home/mamad/Documents/mininetlab/result/upload/{sta.name}.json'
@@ -350,9 +365,12 @@ def run_iperf(sta, server_ip, results, index):
         print(result)
     print(f"Starting DOWNLOAD test on {sta.name} port {port}")
     result = sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -R -p {port} -t 10 --json")
+    thread = Thread(target=run_mtr, args=(sta, server_ip, 'download'))
+    thread.start()
     print(f"DOWNLOAD test on {sta.name} port {port} done")
     try:
         result_file = f'/home/mamad/Documents/mininetlab/result/download/{sta.name}.json'
+
         data = json.loads(result)
         data['rssi'] = sta.wintfs[0].rssi
         with open(result_file, 'w') as f:
@@ -416,6 +434,8 @@ class CustomCLI(CLI):
         print("removing previous run json...")
         sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
         sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
+        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
+        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
         for i, sta in enumerate(sta_list):
             thread = Thread(target=run_iperf, args=(sta, iperfserver, results, i))
             thread.start()
