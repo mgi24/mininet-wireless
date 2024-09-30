@@ -347,7 +347,7 @@ def run_general(sta,resultfolder, command):
 
 
 
-def combine_iperf_results_to_excel(stanum):
+def combine_iperf_results_to_excel():
     directory = '/home/mamad/Documents/mininetlab/result/download'
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -577,7 +577,7 @@ def convert_excel(excel_data, stanum):
 class CustomCLI(CLI):
     def do_processdata(self, line):
         sta_list = self.mn.stations
-        combine_iperf_results_to_excel(len(sta_list))
+        combine_iperf_results_to_excel()
 
     def do_iperf(self, line):
         args = line.split()
@@ -655,9 +655,13 @@ class CustomCLI(CLI):
                             print(f"{name} process on {sta_name} is done")
                             pid_list.remove((sta_name, pid))
                 time.sleep(1)
-                
+
             print("ALL DOWNLOAD PROCESS DONE")
-            excel_data.append(combine_iperf_results_to_excel(len(sta_list)))
+            print(combine_iperf_results_to_excel())
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
         convert_excel(excel_data, len(sta_list))
 
         
