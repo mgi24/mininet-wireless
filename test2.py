@@ -362,7 +362,10 @@ def combine_iperf_results_to_excel(stanum):
             sta_name = os.path.splitext(os.path.basename(file))[0]
             data=[]
             print(f"Checking {f}")
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON for {sta_name}: {e}")
             if not data['end']['streams']:
                 excel_result = {
                     "station": sta_name,
@@ -616,6 +619,8 @@ class CustomCLI(CLI):
                 elapsed_time = current_time - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached. Clearing remaining processes.")
+                    print(pidiperf)
+                    print(pidmtr)
                     pidiperf.clear()
                     pidmtr.clear()
                     break
@@ -643,6 +648,8 @@ class CustomCLI(CLI):
                 elapsed_time = current_time - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached. Clearing remaining processes.")
+                    print(pidiperf)
+                    print(pidmtr)
                     pidiperf.clear()
                     pidmtr.clear()
                     break
