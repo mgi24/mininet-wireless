@@ -391,7 +391,7 @@ def combine_iperf_results_to_excel(stanum):
                         "error": data.get('error', 'UNKNOWN ERROR')
                          }
                         is_error = True
-            if not is_error:
+            if is_error == False:
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": data['start']['timestamp']['time'],
@@ -458,7 +458,7 @@ def combine_iperf_results_to_excel(stanum):
                             "error": data.get('error', 'UNKNOWN ERROR')
                         }
                         is_error = True
-            if not is_error:
+            if is_error == False:
                 excel_result = {
                     "station": sta_name,
                     "upload timestamp": data['start']['timestamp']['time'],
