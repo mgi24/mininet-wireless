@@ -365,6 +365,7 @@ def combine_iperf_results_to_excel(stanum):
                 data = json.load(f)
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
+                data['error'] = "UNKNOWN ERROR"
             excel_result = {}
             if isinstance(data, list):
                 for item in data:
@@ -425,7 +426,11 @@ def combine_iperf_results_to_excel(stanum):
             sta_name = os.path.splitext(os.path.basename(file))[0]
             print(f"Checking {f}")
             data=[]
-            data = json.load(f)
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON for {sta_name}: {e}")
+                data['error'] = "UNKNOWN ERROR"
             excel_result = {}
             if isinstance(data, list):
                 for item in data:
@@ -627,14 +632,14 @@ class CustomCLI(CLI):
                 elapsed_time = current_time - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached. Clearing remaining processes.")
-                    for sta_name, pid in pidiperf:
+                    '''for sta_name, pid in pidiperf:
                         sta = self.mn.get(sta_name)
                         if sta:
                             sta.cmd(f"kill -9 {pid.strip()}")
                     for sta_name, pid in pidmtr:
                         sta = self.mn.get(sta_name)
                         if sta:
-                            sta.cmd(f"kill -9 {pid.strip()}")
+                            sta.cmd(f"kill -9 {pid.strip()}")'''
                     print(pidiperf)
                     print(pidmtr)
                     pidiperf.clear()
@@ -664,14 +669,14 @@ class CustomCLI(CLI):
                 elapsed_time = current_time - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached. Clearing remaining processes.")
-                    for sta_name, pid in pidiperf:
+                    '''for sta_name, pid in pidiperf:
                         sta = self.mn.get(sta_name)
                         if sta:
                             sta.cmd(f"kill -9 {pid.strip()}")
                     for sta_name, pid in pidmtr:
                         sta = self.mn.get(sta_name)
                         if sta:
-                            sta.cmd(f"kill -9 {pid.strip()}")
+                            sta.cmd(f"kill -9 {pid.strip()}")'''
                     print(pidiperf)
                     print(pidmtr)
                     pidiperf.clear()
