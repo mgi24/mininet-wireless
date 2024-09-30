@@ -428,6 +428,8 @@ def combine_iperf_results_to_excel(stanum):
             data=[]
             try:
                 data = json.load(f)
+                if "stream" not in data['end']:
+                    data = {'error':'FILE EMPTY'}
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
