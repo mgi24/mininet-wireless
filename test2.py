@@ -597,7 +597,7 @@ class CustomCLI(CLI):
         sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
         pidiperf = []
         pidmtr = []
-        excel_data = []
+        
         for test in range(num):
 
             for i, sta in enumerate(sta_list):
@@ -660,7 +660,7 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
         time.sleep(10)
 
-        combine_iperf_results_to_excel(len(sta_list))
+        #combine_iperf_results_to_excel(len(sta_list))
 
         
 
