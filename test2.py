@@ -347,7 +347,7 @@ def run_general(sta,resultfolder, command):
 
 
 
-def combine_iperf_results_to_excel():
+def combine_iperf_results_to_excel(stanum):
     directory = '/home/mamad/Documents/mininetlab/result/download'
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -563,9 +563,6 @@ def combine_iperf_results_to_excel():
             else:
                 excel_data.append(excel_result)
     print(f"DONE GETTING DATA PING DOWNLOAD")
-    return excel_data
-
-def convert_excel(excel_data, stanum):
     df = pd.DataFrame(excel_data)
     output_dir = f"{xl_folder}{stanum}"
     if not os.path.exists(output_dir):
@@ -577,9 +574,7 @@ def convert_excel(excel_data, stanum):
 class CustomCLI(CLI):
     def do_processdata(self, line):
         sta_list = self.mn.stations
-        excel_data=[]
-        excel_data.append(combine_iperf_results_to_excel())
-        convert_excel(excel_data, len(sta_list))
+        (combine_iperf_results_to_excel(len(sta_list)))
 
     def do_iperf(self, line):
         args = line.split()
