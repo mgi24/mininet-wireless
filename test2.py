@@ -654,12 +654,11 @@ class CustomCLI(CLI):
                 time.sleep(1)
 
             print("ALL DOWNLOAD PROCESS DONE")
-            (combine_iperf_results_to_excel(len(sta_list)))
-            
-            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
+            '''sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
-            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
+        (combine_iperf_results_to_excel(len(sta_list)))
 
         
 
