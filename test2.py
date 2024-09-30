@@ -613,15 +613,23 @@ class CustomCLI(CLI):
                 pidmtr.append((sta.name, pid2))
                 print(f"Started mtr on {sta.name} with PID {pid2}")
                 time.sleep(0.1)
+            start_time = time.time()
             while pidiperf or pidmtr:
+                current_time = time.time()
+                elapsed_time = current_time - start_time
+                if elapsed_time > 120:  # 2 minutes timeout
+                    print("Timeout reached. Clearing remaining processes.")
+                    pidiperf.clear()
+                    pidmtr.clear()
+                    break
                 for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
                     for sta_name, pid in pid_list[:]:
                         if not os.path.exists(f"/proc/{pid.strip()}"):
                             print(f"{name} process on {sta_name} is done")
                             pid_list.remove((sta_name, pid))
-                
                 time.sleep(1)
             print("ALL UPLOAD PROCESS DONE")
+
             for i, sta in enumerate(sta_list):
                 sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
                 pid = sta.cmd(f"echo $!")
@@ -632,14 +640,22 @@ class CustomCLI(CLI):
                 pidmtr.append((sta.name, pid2))
                 print(f"Started mtr on {sta.name} with PID {pid2}")
                 time.sleep(0.1)
+            start_time = time.time()
             while pidiperf or pidmtr:
+                current_time = time.time()
+                elapsed_time = current_time - start_time
+                if elapsed_time > 120:  # 2 minutes timeout
+                    print("Timeout reached. Clearing remaining processes.")
+                    pidiperf.clear()
+                    pidmtr.clear()
+                    break
                 for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
                     for sta_name, pid in pid_list[:]:
                         if not os.path.exists(f"/proc/{pid.strip()}"):
                             print(f"{name} process on {sta_name} is done")
                             pid_list.remove((sta_name, pid))
-                
                 time.sleep(1)
+                
             print("ALL DOWNLOAD PROCESS DONE")
             excel_data.append(combine_iperf_results_to_excel(len(sta_list)))
         convert_excel(excel_data, len(sta_list))
