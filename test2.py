@@ -366,7 +366,7 @@ def combine_iperf_results_to_excel(stanum):
                 data = json.load(f)
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
-            if not data['end']['streams']:
+            if 'error' in data:
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": "error",
@@ -383,7 +383,8 @@ def combine_iperf_results_to_excel(stanum):
                     "download bits_per_second received": "error",
                     "download cpu host total": "error",
                     "download cpu remote total": "error",
-                    "download total packet": "error"
+                    "download total packet": "error",
+                    "error":data['error']
                 }
             else:
                 excel_result = {
@@ -439,7 +440,8 @@ def combine_iperf_results_to_excel(stanum):
                     "upload bits_per_second received": "error",
                     "upload cpu host total": "error",
                     "upload cpu remote total": "error",
-                    "upload total packet": "error"
+                    "upload total packet": "error",
+                    "error":data['error']
                 }
             else:
                 excel_result = {
@@ -666,7 +668,7 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
         time.sleep(10)
-        apalahj
+
         #combine_iperf_results_to_excel(len(sta_list))
 
         
