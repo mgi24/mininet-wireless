@@ -367,30 +367,32 @@ def combine_iperf_results_to_excel(stanum):
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
             excel_result = {}
+            is_error = False
             if isinstance(data, list):
                 for item in data:
                     if 'error' in item or not item.get('end'):
                         excel_result = {
-                    "station": sta_name,
-                    "download timestamp": "error",
-                    "download start": "error",
-                    "download end": "error",
-                    "download bytes sent": "error",
-                    "download bits_per_second sent": "error",
-                    "download retransmits": "error",
-                    "download max congestion window": "error",
-                    "download delay max": "error",
-                    "download delay min": "error",
-                    "download delay avg": "error",
-                    "download bytes received": "error",
-                    "download bits_per_second received": "error",
-                    "download cpu host total": "error",
-                    "download cpu remote total": "error",
-                    "download total packet": "error",
-                    "error": data.get('error', 'UNKNOWN ERROR')
-                        }
-                    else:
-                        excel_result = {
+                        "station": sta_name,
+                        "download timestamp": "error",
+                        "download start": "error",
+                        "download end": "error",
+                        "download bytes sent": "error",
+                        "download bits_per_second sent": "error",
+                        "download retransmits": "error",
+                        "download max congestion window": "error",
+                        "download delay max": "error",
+                        "download delay min": "error",
+                        "download delay avg": "error",
+                        "download bytes received": "error",
+                        "download bits_per_second received": "error",
+                        "download cpu host total": "error",
+                        "download cpu remote total": "error",
+                        "download total packet": "error",
+                        "error": data.get('error', 'UNKNOWN ERROR')
+                         }
+                        is_error = True
+            if not is_error:
+                excel_result = {
                     "station": sta_name,
                     "download timestamp": data['start']['timestamp']['time'],
                     "download start": data['end']['streams'][0]['sender']['start'],
@@ -408,7 +410,7 @@ def combine_iperf_results_to_excel(stanum):
                     "download cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
                     "download total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
                 }
-            
+            print(excel_result)
             excel_data.append(excel_result)
     print(f"DONE GETTING DATA DOWNLOAD")
 
@@ -432,30 +434,32 @@ def combine_iperf_results_to_excel(stanum):
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
             excel_result = {}
+            is_error = False
             if isinstance(data, list):
                 for item in data:
                     if 'error' in item or not item.get('end'):
                         excel_result = {
-                    "station": sta_name,
-                    "upload timestamp": "error",
-                    "upload start": "error",
-                    "upload end": "error",
-                    "upload bytes sent": "error",
-                    "upload bits_per_second sent": "error",
-                    "upload retransmits": "error",
-                    "upload max congestion window": "error",
-                    "upload delay max": "error",
-                    "upload delay min": "error",
-                    "upload delay avg": "error",
-                    "upload bytes received": "error",
-                    "upload bits_per_second received": "error",
-                    "upload cpu host total": "error",
-                    "upload cpu remote total": "error",
-                    "upload total packet": "error",
-                    "error": data.get('error', 'UNKNOWN ERROR')
-                }
-                    else:
-                        excel_result = {
+                            "station": sta_name,
+                            "upload timestamp": "error",
+                            "upload start": "error",
+                            "upload end": "error",
+                            "upload bytes sent": "error",
+                            "upload bits_per_second sent": "error",
+                            "upload retransmits": "error",
+                            "upload max congestion window": "error",
+                            "upload delay max": "error",
+                            "upload delay min": "error",
+                            "upload delay avg": "error",
+                            "upload bytes received": "error",
+                            "upload bits_per_second received": "error",
+                            "upload cpu host total": "error",
+                            "upload cpu remote total": "error",
+                            "upload total packet": "error",
+                            "error": data.get('error', 'UNKNOWN ERROR')
+                        }
+                        is_error = True
+            if not is_error:
+                excel_result = {
                     "station": sta_name,
                     "upload timestamp": data['start']['timestamp']['time'],
                     "upload start": data['end']['streams'][0]['sender']['start'],
@@ -473,6 +477,7 @@ def combine_iperf_results_to_excel(stanum):
                     "upload cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
                     "upload total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
                 }
+            print(excel_result)
             if i < len(excel_data):
                 for key, value in excel_result.items():
                     if key in excel_data[i]:
