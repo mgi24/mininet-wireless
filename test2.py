@@ -366,7 +366,7 @@ def combine_iperf_results_to_excel(stanum):
                 data = json.load(f)
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
-            if not data.get('end'):
+            if data['error'] or not data['end'] or not data['end']['streams']:
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": "error",
@@ -423,7 +423,7 @@ def combine_iperf_results_to_excel(stanum):
             print(f"Checking {f}")
             data=[]
             data = json.load(f)
-            if not data.get('end'):
+            if not data['end'] or not data['end']['streams']:
                 excel_result = {
                     "station": sta_name,
                     "upload timestamp": "error",
