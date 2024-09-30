@@ -574,7 +574,7 @@ def combine_iperf_results_to_excel(stanum):
 class CustomCLI(CLI):
     def do_processdata(self, line):
         sta_list = self.mn.stations
-        (combine_iperf_results_to_excel(len(sta_list)))
+        combine_iperf_results_to_excel(len(sta_list))
 
     def do_iperf(self, line):
         args = line.split()
@@ -658,7 +658,9 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
-        (combine_iperf_results_to_excel(len(sta_list)))
+        time.sleep(10)
+
+        combine_iperf_results_to_excel(len(sta_list))
 
         
 
