@@ -365,7 +365,7 @@ def combine_iperf_results_to_excel(stanum):
                 data = json.load(f)
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
-                data['error'] = "UNKNOWN ERROR"
+                data={'error':'UNKNOWN ERROR'}
             excel_result = {}
             if isinstance(data, list):
                 for item in data:
@@ -430,7 +430,7 @@ def combine_iperf_results_to_excel(stanum):
                 data = json.load(f)
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
-                data['error'] = "UNKNOWN ERROR"
+                data={'error':'UNKNOWN ERROR'}
             excel_result = {}
             if isinstance(data, list):
                 for item in data:
