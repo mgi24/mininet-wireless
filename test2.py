@@ -366,7 +366,7 @@ def combine_iperf_results_to_excel(stanum):
                 data = json.load(f)
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
-            if data['error'] or not data['end'] or not data['end']['streams']:
+            if 'error' in data or not data['end']:
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": "error",
