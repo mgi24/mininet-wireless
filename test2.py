@@ -368,7 +368,7 @@ def combine_iperf_results_to_excel(stanum):
                 data={'error':'UNKNOWN ERROR'}
             #excel_result = {}
             is_error = False
-            if data['error']:
+            if "error" in data:
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": "error",
