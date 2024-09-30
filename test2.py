@@ -621,6 +621,14 @@ class CustomCLI(CLI):
                 elapsed_time = current_time - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached. Clearing remaining processes.")
+                    for sta_name, pid in pidiperf:
+                        sta = self.mn.get(sta_name)
+                        if sta:
+                            sta.cmd(f"kill -9 {pid.strip()}")
+                    for sta_name, pid in pidmtr:
+                        sta = self.mn.get(sta_name)
+                        if sta:
+                            sta.cmd(f"kill -9 {pid.strip()}")
                     print(pidiperf)
                     print(pidmtr)
                     pidiperf.clear()
@@ -650,6 +658,14 @@ class CustomCLI(CLI):
                 elapsed_time = current_time - start_time
                 if elapsed_time > timeout:
                     print("Timeout reached. Clearing remaining processes.")
+                    for sta_name, pid in pidiperf:
+                        sta = self.mn.get(sta_name)
+                        if sta:
+                            sta.cmd(f"kill -9 {pid.strip()}")
+                    for sta_name, pid in pidmtr:
+                        sta = self.mn.get(sta_name)
+                        if sta:
+                            sta.cmd(f"kill -9 {pid.strip()}")
                     print(pidiperf)
                     print(pidmtr)
                     pidiperf.clear()
