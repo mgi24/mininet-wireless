@@ -423,7 +423,7 @@ def combine_iperf_results_to_excel(stanum):
             print(f"Checking {f}")
             data=[]
             data = json.load(f)
-            if not data['end'] or not data['end']['streams']:
+            if 'error' in data or not data['end']:
                 excel_result = {
                     "station": sta_name,
                     "upload timestamp": "error",
