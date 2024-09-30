@@ -666,7 +666,7 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
         time.sleep(10)
-
+        
         #combine_iperf_results_to_excel(len(sta_list))
 
         
