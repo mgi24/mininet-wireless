@@ -366,32 +366,30 @@ def combine_iperf_results_to_excel(stanum):
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
-            excel_result = {}
+            #excel_result = {}
             is_error = False
-            if isinstance(data, list):
-                for item in data:
-                    if 'error' in item or not item.get('end'):
-                        excel_result = {
-                        "station": sta_name,
-                        "download timestamp": "error",
-                        "download start": "error",
-                        "download end": "error",
-                        "download bytes sent": "error",
-                        "download bits_per_second sent": "error",
-                        "download retransmits": "error",
-                        "download max congestion window": "error",
-                        "download delay max": "error",
-                        "download delay min": "error",
-                        "download delay avg": "error",
-                        "download bytes received": "error",
-                        "download bits_per_second received": "error",
-                        "download cpu host total": "error",
-                        "download cpu remote total": "error",
-                        "download total packet": "error",
-                        "error": data.get('error', 'UNKNOWN ERROR')
-                         }
-                        is_error = True
-            if is_error == False:
+            if data['error']:
+                excel_result = {
+                    "station": sta_name,
+                    "download timestamp": "error",
+                    "download start": "error",
+                    "download end": "error",
+                    "download bytes sent": "error",
+                    "download bits_per_second sent": "error",
+                    "download retransmits": "error",
+                    "download max congestion window": "error",
+                    "download delay max": "error",
+                    "download delay min": "error",
+                    "download delay avg": "error",
+                    "download bytes received": "error",
+                    "download bits_per_second received": "error",
+                    "download cpu host total": "error",
+                    "download cpu remote total": "error",
+                    "download total packet": "error",
+                    "error": data.get('error', 'UNKNOWN ERROR')
+                        }
+                is_error = True
+            else:
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": data['start']['timestamp']['time'],
@@ -435,30 +433,27 @@ def combine_iperf_results_to_excel(stanum):
                 data={'error':'UNKNOWN ERROR'}
             excel_result = {}
             is_error = False
-            if isinstance(data, list):
-                for item in data:
-                    if 'error' in item or not item.get('end'):
-                        excel_result = {
-                            "station": sta_name,
-                            "upload timestamp": "error",
-                            "upload start": "error",
-                            "upload end": "error",
-                            "upload bytes sent": "error",
-                            "upload bits_per_second sent": "error",
-                            "upload retransmits": "error",
-                            "upload max congestion window": "error",
-                            "upload delay max": "error",
-                            "upload delay min": "error",
-                            "upload delay avg": "error",
-                            "upload bytes received": "error",
-                            "upload bits_per_second received": "error",
-                            "upload cpu host total": "error",
-                            "upload cpu remote total": "error",
-                            "upload total packet": "error",
-                            "error": data.get('error', 'UNKNOWN ERROR')
-                        }
-                        is_error = True
-            if is_error == False:
+            if data['error']:
+                excel_result = {
+                    "station": sta_name,
+                    "upload timestamp": "error",
+                    "upload start": "error",
+                    "upload end": "error",
+                    "upload bytes sent": "error",
+                    "upload bits_per_second sent": "error",
+                    "upload retransmits": "error",
+                    "upload max congestion window": "error",
+                    "upload delay max": "error",
+                    "upload delay min": "error",
+                    "upload delay avg": "error",
+                    "upload bytes received": "error",
+                    "upload bits_per_second received": "error",
+                    "upload cpu host total": "error",
+                    "upload cpu remote total": "error",
+                    "upload total packet": "error",
+                    "error": data.get('error', 'UNKNOWN ERROR')
+                }
+            else:
                 excel_result = {
                     "station": sta_name,
                     "upload timestamp": data['start']['timestamp']['time'],
