@@ -524,19 +524,9 @@ def combine_iperf_results_to_excel(stanum):
             else:
                 excel_data.append(excel_result)
     print(f"DONE GETTING DATA PING DOWNLOAD")
-    
+    return excel_data
 
-
-
-
-
-
-
-
-
-
-
-    excel_result["total failed"]=stanum-len(json_files)
+def convert_excel(excel_data, stanum):
     df = pd.DataFrame(excel_data)
     output_dir = f"{xl_folder}{stanum}"
     if not os.path.exists(output_dir):
@@ -571,6 +561,7 @@ class CustomCLI(CLI):
         sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
         pidiperf = []
         pidmtr = []
+        excel_data = []
         for test in range(num):
 
             for i, sta in enumerate(sta_list):
@@ -611,6 +602,8 @@ class CustomCLI(CLI):
                 
                 time.sleep(1)
             print("ALL DOWNLOAD PROCESS DONE")
+            excel_data.append(combine_iperf_results_to_excel(len(sta_list)))
+        convert_excel(excel_data, len(sta_list))
 
         
 
