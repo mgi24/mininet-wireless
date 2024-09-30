@@ -363,24 +363,44 @@ def combine_iperf_results_to_excel(stanum):
             data=[]
             print(f"Checking {f}")
             data = json.load(f)
-            excel_result = {
-                "station": sta_name,
-                "download timestamp": data['start']['timestamp']['time'],
-                "download start": data['end']['streams'][0]['sender']['start'],
-                "download end": data['end']['streams'][0]['sender']['end'],
-                "download bytes sent": data['end']['streams'][0]['sender']['bytes'],
-                "download bits_per_second sent": data['end']['streams'][0]['sender']['bits_per_second'],
-                "download retransmits": data['end']['streams'][0]['sender']['retransmits'],
-                "download max congestion window": data['end']['streams'][0]['sender']['max_snd_cwnd'],
-                "download delay max": data['end']['streams'][0]['sender']['max_rtt'],
-                "download delay min": data['end']['streams'][0]['sender']['min_rtt'],
-                "download delay avg": data['end']['streams'][0]['sender']['mean_rtt'],
-                "download bytes received": data['end']['streams'][0]['receiver']['bytes'],
-                "download bits_per_second received": data['end']['streams'][0]['receiver']['bits_per_second'],
-                "download cpu host total": data['end']['cpu_utilization_percent']['host_total'],
-                "download cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
-                "download total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
-            }
+            if not data['end']['streams']:
+                excel_result = {
+                    "station": sta_name,
+                    "download timestamp": "error",
+                    "download start": "error",
+                    "download end": "error",
+                    "download bytes sent": "error",
+                    "download bits_per_second sent": "error",
+                    "download retransmits": "error",
+                    "download max congestion window": "error",
+                    "download delay max": "error",
+                    "download delay min": "error",
+                    "download delay avg": "error",
+                    "download bytes received": "error",
+                    "download bits_per_second received": "error",
+                    "download cpu host total": "error",
+                    "download cpu remote total": "error",
+                    "download total packet": "error"
+                }
+            else:
+                excel_result = {
+                    "station": sta_name,
+                    "download timestamp": data['start']['timestamp']['time'],
+                    "download start": data['end']['streams'][0]['sender']['start'],
+                    "download end": data['end']['streams'][0]['sender']['end'],
+                    "download bytes sent": data['end']['streams'][0]['sender']['bytes'],
+                    "download bits_per_second sent": data['end']['streams'][0]['sender']['bits_per_second'],
+                    "download retransmits": data['end']['streams'][0]['sender']['retransmits'],
+                    "download max congestion window": data['end']['streams'][0]['sender']['max_snd_cwnd'],
+                    "download delay max": data['end']['streams'][0]['sender']['max_rtt'],
+                    "download delay min": data['end']['streams'][0]['sender']['min_rtt'],
+                    "download delay avg": data['end']['streams'][0]['sender']['mean_rtt'],
+                    "download bytes received": data['end']['streams'][0]['receiver']['bytes'],
+                    "download bits_per_second received": data['end']['streams'][0]['receiver']['bits_per_second'],
+                    "download cpu host total": data['end']['cpu_utilization_percent']['host_total'],
+                    "download cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
+                    "download total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
+                }
             excel_data.append(excel_result)
     print(f"DONE GETTING DATA DOWNLOAD")
 
@@ -399,25 +419,44 @@ def combine_iperf_results_to_excel(stanum):
             print(f"Checking {f}")
             data=[]
             data = json.load(f)
-            excel_result = {
-                "station": sta_name,
-                "download timestamp": data['start']['timestamp']['time'],
-                "upload timestamp": data['start']['timestamp']['time'],
-                "upload start": data['end']['streams'][0]['sender']['start'],
-                "upload end": data['end']['streams'][0]['sender']['end'],
-                "upload bytes sent": data['end']['streams'][0]['sender']['bytes'],
-                "upload bits_per_second sent": data['end']['streams'][0]['sender']['bits_per_second'],
-                "upload retransmits": data['end']['streams'][0]['sender']['retransmits'],
-                "upload max congestion window": data['end']['streams'][0]['sender']['max_snd_cwnd'],
-                "upload delay max": data['end']['streams'][0]['sender']['max_rtt'],
-                "upload delay min": data['end']['streams'][0]['sender']['min_rtt'],
-                "upload delay avg": data['end']['streams'][0]['sender']['mean_rtt'],
-                "upload bytes received": data['end']['streams'][0]['receiver']['bytes'],
-                "upload bits_per_second received": data['end']['streams'][0]['receiver']['bits_per_second'],
-                "upload cpu host total": data['end']['cpu_utilization_percent']['host_total'],
-                "upload cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
-                "upload total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
-            }
+            if not data['end']['streams']:
+                excel_result = {
+                    "station": sta_name,
+                    "upload timestamp": "error",
+                    "upload start": "error",
+                    "upload end": "error",
+                    "upload bytes sent": "error",
+                    "upload bits_per_second sent": "error",
+                    "upload retransmits": "error",
+                    "upload max congestion window": "error",
+                    "upload delay max": "error",
+                    "upload delay min": "error",
+                    "upload delay avg": "error",
+                    "upload bytes received": "error",
+                    "upload bits_per_second received": "error",
+                    "upload cpu host total": "error",
+                    "upload cpu remote total": "error",
+                    "upload total packet": "error"
+                }
+            else:
+                excel_result = {
+                    "station": sta_name,
+                    "upload timestamp": data['start']['timestamp']['time'],
+                    "upload start": data['end']['streams'][0]['sender']['start'],
+                    "upload end": data['end']['streams'][0]['sender']['end'],
+                    "upload bytes sent": data['end']['streams'][0]['sender']['bytes'],
+                    "upload bits_per_second sent": data['end']['streams'][0]['sender']['bits_per_second'],
+                    "upload retransmits": data['end']['streams'][0]['sender']['retransmits'],
+                    "upload max congestion window": data['end']['streams'][0]['sender']['max_snd_cwnd'],
+                    "upload delay max": data['end']['streams'][0]['sender']['max_rtt'],
+                    "upload delay min": data['end']['streams'][0]['sender']['min_rtt'],
+                    "upload delay avg": data['end']['streams'][0]['sender']['mean_rtt'],
+                    "upload bytes received": data['end']['streams'][0]['receiver']['bytes'],
+                    "upload bits_per_second received": data['end']['streams'][0]['receiver']['bits_per_second'],
+                    "upload cpu host total": data['end']['cpu_utilization_percent']['host_total'],
+                    "upload cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
+                    "upload total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
+                }
             if i < len(excel_data):
                 for key, value in excel_result.items():
                     if key in excel_data[i]:
