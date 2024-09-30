@@ -363,6 +363,8 @@ def combine_iperf_results_to_excel(stanum):
             print(f"Checking {f}")
             try:
                 data = json.load(f)
+                if not data['end']:
+                    data = {'error': 'FILE EMPTY'}
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
@@ -502,15 +504,19 @@ def combine_iperf_results_to_excel(stanum):
             data=[]
             data = json.load(f)
             try:
-                excel_result = {
-                    "station": sta_name,
-                    "host": data['report']['hubs'][0]['host'],
-                    "upload loss": data['report']['hubs'][0]['Loss%'],
-                    "upload delay avg": data['report']['hubs'][0]['Avg'],
-                    "upload delay min": data['report']['hubs'][0]['Best'],
-                    "upload delay max": data['report']['hubs'][0]['Wrst'],
-                    "upload jitter std": data['report']['hubs'][0]['StDev']
-                }
+                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
+                if hub_data:
+                    excel_result = {
+                        "station": sta_name,
+                        "host": hub_data['host'],
+                        "upload loss": hub_data['Loss%'],
+                        "upload delay avg": hub_data['Avg'],
+                        "upload delay min": hub_data['Best'],
+                        "upload delay max": hub_data['Wrst'],
+                        "upload jitter std": hub_data['StDev']
+                    }
+                else:
+                    raise KeyError("iperfserver not found in hubs")
             except KeyError as e:
                 excel_result = {
                     "station": sta_name,
@@ -549,15 +555,19 @@ def combine_iperf_results_to_excel(stanum):
             data=[]
             data = json.load(f)
             try:
-                excel_result = {
-                    "station": sta_name,
-                    "host": data['report']['hubs'][0]['host'],
-                    "download loss": data['report']['hubs'][0]['Loss%'],
-                    "download delay avg": data['report']['hubs'][0]['Avg'],
-                    "download delay min": data['report']['hubs'][0]['Best'],
-                    "download delay max": data['report']['hubs'][0]['Wrst'],
-                    "download jitter std": data['report']['hubs'][0]['StDev']
-                }
+                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
+                if hub_data:
+                    excel_result = {
+                        "station": sta_name,
+                        "host": hub_data['host'],
+                        "upload loss": hub_data['Loss%'],
+                        "upload delay avg": hub_data['Avg'],
+                        "upload delay min": hub_data['Best'],
+                        "upload delay max": hub_data['Wrst'],
+                        "upload jitter std": hub_data['StDev']
+                    }
+                else:
+                    raise KeyError("iperfserver not found in hubs")
             except KeyError as e:
                 excel_result = {
                     "station": sta_name,
