@@ -368,6 +368,7 @@ def combine_iperf_results_to_excel(stanum):
                 print(f"Error decoding JSON for {sta_name}: {e}")
             
             if isinstance(data, list):
+                excel_result = {}
                 for item in data:
                     if 'error' in item or not item.get('end'):
                         excel_result = {
