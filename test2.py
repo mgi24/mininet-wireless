@@ -346,7 +346,6 @@ def run_general(sta,resultfolder, command):
         print(result)
 
 
-
 def combine_iperf_results_to_excel(stanum):
     directory = '/home/mamad/Documents/mininetlab/result/download'
     json_files = []
@@ -368,7 +367,6 @@ def combine_iperf_results_to_excel(stanum):
                 print(f"Error decoding JSON for {sta_name}: {e}")
             excel_result = {}
             if isinstance(data, list):
-               
                 for item in data:
                     if 'error' in item or not item.get('end'):
                         excel_result = {
@@ -409,6 +407,7 @@ def combine_iperf_results_to_excel(stanum):
                     "download cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
                     "download total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
                 }
+            
             excel_data.append(excel_result)
     print(f"DONE GETTING DATA DOWNLOAD")
 
@@ -427,8 +426,11 @@ def combine_iperf_results_to_excel(stanum):
             print(f"Checking {f}")
             data=[]
             data = json.load(f)
-            if 'error' in data or not data['end']:
-                excel_result = {
+            excel_result = {}
+            if isinstance(data, list):
+                for item in data:
+                    if 'error' in item or not item.get('end'):
+                        excel_result = {
                     "station": sta_name,
                     "upload timestamp": "error",
                     "upload start": "error",
@@ -447,8 +449,8 @@ def combine_iperf_results_to_excel(stanum):
                     "upload total packet": "error",
                     "error": data.get('error', 'UNKNOWN ERROR')
                 }
-            else:
-                excel_result = {
+                    else:
+                        excel_result = {
                     "station": sta_name,
                     "upload timestamp": data['start']['timestamp']['time'],
                     "upload start": data['end']['streams'][0]['sender']['start'],
