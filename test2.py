@@ -366,7 +366,7 @@ def combine_iperf_results_to_excel(stanum):
                 data = json.load(f)
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
-            if 'error' in data:
+            if not data.get('end'):
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": "error",
@@ -384,7 +384,7 @@ def combine_iperf_results_to_excel(stanum):
                     "download cpu host total": "error",
                     "download cpu remote total": "error",
                     "download total packet": "error",
-                    "error":data['error']
+                    "error": data.get('error', 'UNKNOWN ERROR')
                 }
             else:
                 excel_result = {
@@ -423,7 +423,7 @@ def combine_iperf_results_to_excel(stanum):
             print(f"Checking {f}")
             data=[]
             data = json.load(f)
-            if not data['end']['streams']:
+            if not data.get('end'):
                 excel_result = {
                     "station": sta_name,
                     "upload timestamp": "error",
@@ -441,7 +441,7 @@ def combine_iperf_results_to_excel(stanum):
                     "upload cpu host total": "error",
                     "upload cpu remote total": "error",
                     "upload total packet": "error",
-                    "error":data['error']
+                    "error": data.get('error', 'UNKNOWN ERROR')
                 }
             else:
                 excel_result = {
