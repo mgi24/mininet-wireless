@@ -17,7 +17,7 @@ import os
 from threading import Thread
 import pandas as pd
 import os
-
+timeout = 30
 iperfserver = '143.198.143.170'
 gateway = "192.168.2.1"
 adapter = 'enp9s0'
@@ -577,7 +577,9 @@ def convert_excel(excel_data, stanum):
 class CustomCLI(CLI):
     def do_processdata(self, line):
         sta_list = self.mn.stations
-        combine_iperf_results_to_excel()
+        excel_data=[]
+        excel_data.append(combine_iperf_results_to_excel())
+        convert_excel(excel_data, len(sta_list))
 
     def do_iperf(self, line):
         args = line.split()
@@ -617,7 +619,7 @@ class CustomCLI(CLI):
             while pidiperf or pidmtr:
                 current_time = time.time()
                 elapsed_time = current_time - start_time
-                if elapsed_time > 120:  # 2 minutes timeout
+                if elapsed_time > timeout:
                     print("Timeout reached. Clearing remaining processes.")
                     pidiperf.clear()
                     pidmtr.clear()
@@ -644,7 +646,7 @@ class CustomCLI(CLI):
             while pidiperf or pidmtr:
                 current_time = time.time()
                 elapsed_time = current_time - start_time
-                if elapsed_time > 120:  # 2 minutes timeout
+                if elapsed_time > timeout:
                     print("Timeout reached. Clearing remaining processes.")
                     pidiperf.clear()
                     pidmtr.clear()
@@ -657,12 +659,12 @@ class CustomCLI(CLI):
                 time.sleep(1)
 
             print("ALL DOWNLOAD PROCESS DONE")
-            print(combine_iperf_results_to_excel())
+            
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
-        convert_excel(excel_data, len(sta_list))
+        
 
         
 
