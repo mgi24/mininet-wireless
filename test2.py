@@ -20,7 +20,7 @@ import os
 timeout = 30
 iperfserver = '143.198.143.170'
 gateway = "192.168.2.1"
-adapter = 'enp9s0'
+adapter = 'virbr1'
 xl_folder = '/home/mamad/Documents/mininetlab/pf/'
 servers = [
                 [41848, "Global Media Data Prima"],
