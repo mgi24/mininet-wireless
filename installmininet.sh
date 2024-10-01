@@ -22,4 +22,9 @@ wget https://raw.githubusercontent.com/pimlie/ubuntu-mainline-kernel.sh/master/u
 sudo install ubuntu-mainline-kernel.sh /usr/local/bin/
 sudo ubuntu-mainline-kernel.sh -c   
 sudo ubuntu-mainline-kernel.sh -i
+sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils -y
+sudo apt install virt-manager -y
+sudo adduser $(whoami) libvirt
+sudo adduser $(whoami) kvm
+
 
