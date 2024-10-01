@@ -367,12 +367,12 @@ def combine_iperf_results_to_excel(stanum, testnum):
                 data = json.load(f)
                 if not data['end']:
                     data = {'error': 'FILE EMPTY'}
-                    run_fail = True
+                    
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
-                run_fail = True
-            #excel_result = {}
+                
+            
             is_error = False
             if "error" in data:
                 run_fail = True
@@ -437,11 +437,11 @@ def combine_iperf_results_to_excel(stanum, testnum):
                 data = json.load(f)
                 if not data['end']:
                     data = {'error': 'FILE EMPTY'}
-                    run_fail = True
+                    
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
-                run_fail = True
+                
 
             if "error" in data:
                 run_fail = True
@@ -599,7 +599,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
                         excel_data[i][key] = value
             else:
                 excel_data.append(excel_result)
-        if run_fail:
+        if run_fail == True:
             total_failed+=1
     print(f"DONE GETTING DATA PING DOWNLOAD")
     excel_data.append({"total failed": total_failed})

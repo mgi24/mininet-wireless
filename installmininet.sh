@@ -1,9 +1,9 @@
-sudo apt update
-sudo apt upgrade
-sudo apt install net-tools
-sudo apt-get install curl
+sudo apt update -y
+sudo apt upgrade -i
+sudo apt install net-tools -y
+sudo apt-get install curl -y
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
-sudo apt-get install speedtest
+sudo apt-get install speedtest -y
 git clone https://github.com/mininet/mininet
 cd mininet
 git checkout -b mininet-2.3.0 2.3.0
