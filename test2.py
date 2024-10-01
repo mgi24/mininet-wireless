@@ -525,7 +525,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
                     }
                 else:
                     raise KeyError("iperfserver not found in hubs")
-                    run_fail = True
+                    
             except KeyError as e:
                 excel_result = {
                     "station": sta_name,
@@ -576,7 +576,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
                         "mtr download jitter std": hub_data['StDev']
                     }
                 else:
-                    run_fail = True
+                    
                     raise KeyError("iperfserver not found in hubs")
             except KeyError as e:
                 excel_result = {
@@ -719,9 +719,8 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
-        time.sleep(10)
-
-        combine_iperf_results_to_excel(len(sta_list), test)
+            print("generating report...")
+            combine_iperf_results_to_excel(len(sta_list), test)
 
         
 
