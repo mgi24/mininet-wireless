@@ -1,5 +1,5 @@
 sudo apt update -y
-sudo apt upgrade -i
+sudo apt upgrade -y
 sudo apt install net-tools -y
 sudo apt-get install curl -y
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | sudo bash
