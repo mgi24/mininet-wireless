@@ -356,7 +356,9 @@ def combine_iperf_results_to_excel(stanum, testnum):
 
     json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
     excel_data = []
+    total_failed = 0
     for file in json_files:
+        run_fail = False
         with open(file) as f:
             sta_name = os.path.splitext(os.path.basename(file))[0]
             data=[]
@@ -365,12 +367,15 @@ def combine_iperf_results_to_excel(stanum, testnum):
                 data = json.load(f)
                 if not data['end']:
                     data = {'error': 'FILE EMPTY'}
+                    run_fail = True
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
+                run_fail = True
             #excel_result = {}
             is_error = False
             if "error" in data:
+                run_fail = True
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": "error",
@@ -410,7 +415,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
                     "download cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
                     "download total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
                 }
-            print(excel_result)
+            #print(excel_result)
             excel_data.append(excel_result)
     print(f"DONE GETTING DATA DOWNLOAD")
 
@@ -432,11 +437,14 @@ def combine_iperf_results_to_excel(stanum, testnum):
                 data = json.load(f)
                 if not data['end']:
                     data = {'error': 'FILE EMPTY'}
+                    run_fail = True
             except json.JSONDecodeError as e:
                 print(f"Error decoding JSON for {sta_name}: {e}")
                 data={'error':'UNKNOWN ERROR'}
+                run_fail = True
 
             if "error" in data:
+                run_fail = True
                 excel_result = {
                     "station": sta_name,
                     "upload timestamp": "error",
@@ -475,7 +483,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
                     "upload cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
                     "upload total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
                 }
-            print(excel_result)
+            #print(excel_result)
             if i < len(excel_data):
                 for key, value in excel_result.items():
                     if key in excel_data[i]:
@@ -517,6 +525,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
                     }
                 else:
                     raise KeyError("iperfserver not found in hubs")
+                    run_fail = True
             except KeyError as e:
                 excel_result = {
                     "station": sta_name,
@@ -567,6 +576,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
                         "mtr download jitter std": hub_data['StDev']
                     }
                 else:
+                    run_fail = True
                     raise KeyError("iperfserver not found in hubs")
             except KeyError as e:
                 excel_result = {
@@ -589,7 +599,10 @@ def combine_iperf_results_to_excel(stanum, testnum):
                         excel_data[i][key] = value
             else:
                 excel_data.append(excel_result)
+        if run_fail:
+            total_failed+=1
     print(f"DONE GETTING DATA PING DOWNLOAD")
+    excel_data.append({"total failed": total_failed})
     df = pd.DataFrame(excel_data)
     output_dir = f"{xl_folder}{stanum}"
     if not os.path.exists(output_dir):
@@ -617,15 +630,16 @@ class CustomCLI(CLI):
         "Run iperf3 test on all stations: iperf"
         results = [None] * len(self.mn.stations)
         sta_list = self.mn.stations
-        print("removing previous run json...")
-        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
-        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
-        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
-        sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
+        
         pidiperf = []
         pidmtr = []
         
         for test in range(num):
+            print("removing previous run json...")
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
 
             for i, sta in enumerate(sta_list):
                 sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 --json > /home/mamad/Documents/mininetlab/result/upload/{sta.name}.json &")
