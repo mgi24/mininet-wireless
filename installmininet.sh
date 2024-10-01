@@ -18,13 +18,13 @@ cd ..
 sudo pip install pandas openpyxl
 sudo pip uninstall numpy
 sudo pip install numpy==1.22.4
-wget https://raw.githubusercontent.com/pimlie/ubuntu-mainline-kernel.sh/master/ubuntu-mainline-kernel.sh
-sudo install ubuntu-mainline-kernel.sh /usr/local/bin/
-sudo ubuntu-mainline-kernel.sh -c   
-sudo ubuntu-mainline-kernel.sh -i
 sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils -y
 sudo apt install virt-manager -y
 sudo adduser $(whoami) libvirt
 sudo adduser $(whoami) kvm
+wget https://raw.githubusercontent.com/pimlie/ubuntu-mainline-kernel.sh/master/ubuntu-mainline-kernel.sh
+sudo install ubuntu-mainline-kernel.sh /usr/local/bin/
+sudo ubuntu-mainline-kernel.sh -c   
+sudo ubuntu-mainline-kernel.sh -i
 
 
