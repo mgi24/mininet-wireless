@@ -19,9 +19,9 @@ import pandas as pd
 import os
 timeout = 30
 iperfserver = '143.198.143.170'
-gateway = "192.168.1.1"
+gateway = "192.168.2.1"
 adapter = 'virbr1'
-xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
+xl_folder = '/home/mamad/Documents/mininetlab/pf/'
 servers = [
                 [41848, "Global Media Data Prima"],
                 [13825, "GMEDIA"],
