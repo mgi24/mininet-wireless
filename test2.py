@@ -346,7 +346,7 @@ def run_general(sta,resultfolder, command):
         print(result)
 
 
-def combine_iperf_results_to_excel(stanum):
+def combine_iperf_results_to_excel(stanum, testnum):
     directory = '/home/mamad/Documents/mininetlab/result/download'
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -509,11 +509,11 @@ def combine_iperf_results_to_excel(stanum):
                     excel_result = {
                         "station": sta_name,
                         "host": hub_data['host'],
-                        "upload loss": hub_data['Loss%'],
-                        "upload delay avg": hub_data['Avg'],
-                        "upload delay min": hub_data['Best'],
-                        "upload delay max": hub_data['Wrst'],
-                        "upload jitter std": hub_data['StDev']
+                        "mtr upload loss": hub_data['Loss%'],
+                        "mtr upload delay avg": hub_data['Avg'],
+                        "mtr upload delay min": hub_data['Best'],
+                        "mtr upload delay max": hub_data['Wrst'],
+                        "mtr upload jitter std": hub_data['StDev']
                     }
                 else:
                     raise KeyError("iperfserver not found in hubs")
@@ -521,11 +521,11 @@ def combine_iperf_results_to_excel(stanum):
                 excel_result = {
                     "station": sta_name,
                     "host": "error",
-                    "upload loss": "error",
-                    "upload delay avg": "error",
-                    "upload delay min": "error",
-                    "upload delay max": "error",
-                    "upload jitter std": "error"
+                    "mtr upload loss": "error",
+                    "mtr upload delay avg": "error",
+                    "mtr upload delay min": "error",
+                    "mtr upload delay max": "error",
+                    "mtr upload jitter std": "error"
                 }
             if i < len(excel_data):
                 for key, value in excel_result.items():
@@ -560,11 +560,11 @@ def combine_iperf_results_to_excel(stanum):
                     excel_result = {
                         "station": sta_name,
                         "host": hub_data['host'],
-                        "upload loss": hub_data['Loss%'],
-                        "upload delay avg": hub_data['Avg'],
-                        "upload delay min": hub_data['Best'],
-                        "upload delay max": hub_data['Wrst'],
-                        "upload jitter std": hub_data['StDev']
+                        "mtr download loss": hub_data['Loss%'],
+                        "mtr download delay avg": hub_data['Avg'],
+                        "mtr download delay min": hub_data['Best'],
+                        "mtr download delay max": hub_data['Wrst'],
+                        "mtr download jitter std": hub_data['StDev']
                     }
                 else:
                     raise KeyError("iperfserver not found in hubs")
@@ -572,11 +572,11 @@ def combine_iperf_results_to_excel(stanum):
                 excel_result = {
                     "station": sta_name,
                     "host": "error",
-                    "download loss": "error",
-                    "download delay avg": "error",
-                    "download delay min": "error",
-                    "download delay max": "error",
-                    "download jitter std": "error"
+                    "mtr download loss": "error",
+                    "mtr download delay avg": "error",
+                    "mtr download delay min": "error",
+                    "mtr download delay max": "error",
+                    "mtr download jitter std": "error"
                 }
             if i < len(excel_data):
                 for key, value in excel_result.items():
@@ -594,7 +594,7 @@ def combine_iperf_results_to_excel(stanum):
     output_dir = f"{xl_folder}{stanum}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    output_file = f"{output_dir}/speedtest_{stanum}.xlsx"
+    output_file = f"{output_dir}/iperftest{stanum}_{testnum}.xlsx"
     df.to_excel(output_file, index=False)
 
         
@@ -707,7 +707,7 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
         time.sleep(10)
 
-        #combine_iperf_results_to_excel(len(sta_list))
+        combine_iperf_results_to_excel(len(sta_list), test)
 
         
 
