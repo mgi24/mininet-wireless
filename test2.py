@@ -357,8 +357,9 @@ def combine_iperf_results_to_excel(stanum, testnum):
     json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
     excel_data = []
     total_failed = 0
+    
     for file in json_files:
-        run_fail = False
+        
         with open(file) as f:
             sta_name = os.path.splitext(os.path.basename(file))[0]
             data=[]
@@ -375,7 +376,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
             
             is_error = False
             if "error" in data:
-                run_fail = True
+                
                 excel_result = {
                     "station": sta_name,
                     "download timestamp": "error",
@@ -444,7 +445,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
                 
 
             if "error" in data:
-                run_fail = True
+                
                 excel_result = {
                     "station": sta_name,
                     "upload timestamp": "error",
@@ -599,9 +600,9 @@ def combine_iperf_results_to_excel(stanum, testnum):
                         excel_data[i][key] = value
             else:
                 excel_data.append(excel_result)
-        if run_fail == True:
-            total_failed+=1
+        
     print(f"DONE GETTING DATA PING DOWNLOAD")
+    total_failed = sum(1 for data in excel_data if 'error' in data)
     excel_data.append({"total failed": total_failed})
     df = pd.DataFrame(excel_data)
     output_dir = f"{xl_folder}{stanum}"
