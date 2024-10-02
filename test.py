@@ -17,11 +17,22 @@ import os
 from threading import Thread
 import pandas as pd
 import os
-
-gateway = "192.168.3.1"
-iperfserver = "165.232.175.148"
-adapter = 'ens33'
-xl_folder = '/home/mamad/Documents/mininetlab/pf/'
+timeout = 30
+iperfserver = '143.198.143.170'
+gateway = "192.168.1.1"
+adapter = 'virbr1'
+xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
+servers = [
+                [41848, "Global Media Data Prima"],
+                [13825, "GMEDIA"],
+                [33207, "Lintas Data Prima"],
+                [36813, "Citranet"],
+                [63473, "PT CYB MEDIA GROUP"],
+                [62736, "KabelTelekom"],
+                [44425, "YAMNET"],
+                
+                [62249, "Amanna Media Link"]
+            ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def read_json_files(directory, stanum, test_number):
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -214,7 +225,6 @@ def read_json_files(directory, stanum, test_number):
     total_upload_speed_mbps = total_upload_speed / 1000000
     total_download_speed_mbps = total_download_speed / 1000000
     
-
 def pinghost(net, host1, host2):
     h1 = net.get(host1)
     h2 = net.get(host2)
@@ -234,16 +244,6 @@ def pinghost(net, host1, host2):
         print(result)
         print(f"Host {host1} or {host2} not found")
 
-servers = [
-                [41848, "Global Media Data Prima"],
-                [13825, "GMEDIA"],
-                [33207, "Lintas Data Prima"],
-                [36813, "Citranet"],
-                [63473, "PT CYB MEDIA GROUP"],
-                [62736, "KabelTelekom"],
-                [44425, "YAMNET"],
-                [62249, "Amanna Media Link"]
-            ]#blacklist: INDOSAT(ping fail) KITANET(upload)
 def speedtest_process(sta_list):
     "Run speedtest on all STAs"
     results = [None] * len(sta_list)
@@ -296,11 +296,6 @@ def speedtest_process(sta_list):
     else:
         print("No STAs found")
 
-
-
-
-
-
 def run_speedtest(sta, server_port,server_name, results, index):
     # Run the speedtest command and capture the output
     result = sta.cmd(f"speedtest -s {server_port} --format=json")
@@ -333,7 +328,410 @@ def run_speedtest(sta, server_port,server_name, results, index):
                     print(result)
                     print(f"Error decoding JSON for {sta.name}: {e}")
 
+
+def run_general(sta,resultfolder, command):
+    # Run anything on sta
+    print(f"Starting {command} on {sta.name}")
+    result = sta.cmd(command)
+    print(f"{command} {sta.name} done")
+    try:
+        result_file = f'/home/mamad/Documents/mininetlab/result/{resultfolder}/{sta.name}.json'
+        data = json.loads(result)
+        data['rssi'] = sta.wintfs[0].rssi
+        with open(result_file, 'w') as f:
+            json.dump(data, f, indent=4)
+
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON for {sta.name}: {e}")
+        print(result)
+
+
+def combine_iperf_results_to_excel(stanum, testnum, sta_list):
+    directory = '/home/mamad/Documents/mininetlab/result/download'
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                json_files.append(os.path.join(root, file))
+
+    json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
+    excel_data = []
+    total_failed = 0
+    
+    for file in json_files:
+        
+        with open(file) as f:
+            sta_name = os.path.splitext(os.path.basename(file))[0]
+            data=[]
+            print(f"Checking {f}")
+            try:
+                data = json.load(f)
+                if not data['end']:
+                    data = {'error': 'FILE EMPTY'}
+                    
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON for {sta_name}: {e}")
+                data={'error':'UNKNOWN ERROR'}
+                
+            
+            is_error = False
+            if "error" in data:
+                
+                excel_result = {
+                    "station": sta_name,
+                    "download timestamp": "error",
+                    "download start": "error",
+                    "download end": "error",
+                    "download bytes sent": "error",
+                    "download bits_per_second sent": "error",
+                    "download retransmits": "error",
+                    "download max congestion window": "error",
+                    "download delay max": "error",
+                    "download delay min": "error",
+                    "download delay avg": "error",
+                    "download bytes received": "error",
+                    "download bits_per_second received": "error",
+                    "download cpu host total": "error",
+                    "download cpu remote total": "error",
+                    "download total packet": "error",
+                    "error": data.get('error', 'UNKNOWN ERROR')
+                        }
+                is_error = True
+            else:
+                excel_result = {
+                    "station": sta_name,
+                    "download timestamp": data['start']['timestamp']['time'],
+                    "download start": data['end']['streams'][0]['sender']['start'],
+                    "download end": data['end']['streams'][0]['sender']['end'],
+                    "download bytes sent": data['end']['streams'][0]['sender']['bytes'],
+                    "download bits_per_second sent": data['end']['streams'][0]['sender']['bits_per_second'],
+                    "download retransmits": data['end']['streams'][0]['sender']['retransmits'],
+                    "download max congestion window": data['end']['streams'][0]['sender']['max_snd_cwnd'],
+                    "download delay max": data['end']['streams'][0]['sender']['max_rtt'],
+                    "download delay min": data['end']['streams'][0]['sender']['min_rtt'],
+                    "download delay avg": data['end']['streams'][0]['sender']['mean_rtt'],
+                    "download bytes received": data['end']['streams'][0]['receiver']['bytes'],
+                    "download bits_per_second received": data['end']['streams'][0]['receiver']['bits_per_second'],
+                    "download cpu host total": data['end']['cpu_utilization_percent']['host_total'],
+                    "download cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
+                    "download total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
+                }
+            #print(excel_result)
+            excel_data.append(excel_result)
+    print(f"DONE GETTING DATA DOWNLOAD")
+
+
+    directory = '/home/mamad/Documents/mininetlab/result/upload'
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                json_files.append(os.path.join(root, file))
+
+    json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
+    for i, file in enumerate(json_files):
+        with open(file) as f:
+            sta_name = os.path.splitext(os.path.basename(file))[0]
+            print(f"Checking {f}")
+            data=[]
+            try:
+                data = json.load(f)
+                if not data['end']:
+                    data = {'error': 'FILE EMPTY'}
+                    
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON for {sta_name}: {e}")
+                data={'error':'UNKNOWN ERROR'}
+                
+
+            if "error" in data:
+                
+                excel_result = {
+                    "station": sta_name,
+                    "upload timestamp": "error",
+                    "upload start": "error",
+                    "upload end": "error",
+                    "upload bytes sent": "error",
+                    "upload bits_per_second sent": "error",
+                    "upload retransmits": "error",
+                    "upload max congestion window": "error",
+                    "upload delay max": "error",
+                    "upload delay min": "error",
+                    "upload delay avg": "error",
+                    "upload bytes received": "error",
+                    "upload bits_per_second received": "error",
+                    "upload cpu host total": "error",
+                    "upload cpu remote total": "error",
+                    "upload total packet": "error",
+                    "error": data.get('error', 'UNKNOWN ERROR')
+                }
+            else:
+                excel_result = {
+                    "station": sta_name,
+                    "upload timestamp": data['start']['timestamp']['time'],
+                    "upload start": data['end']['streams'][0]['sender']['start'],
+                    "upload end": data['end']['streams'][0]['sender']['end'],
+                    "upload bytes sent": data['end']['streams'][0]['sender']['bytes'],
+                    "upload bits_per_second sent": data['end']['streams'][0]['sender']['bits_per_second'],
+                    "upload retransmits": data['end']['streams'][0]['sender']['retransmits'],
+                    "upload max congestion window": data['end']['streams'][0]['sender']['max_snd_cwnd'],
+                    "upload delay max": data['end']['streams'][0]['sender']['max_rtt'],
+                    "upload delay min": data['end']['streams'][0]['sender']['min_rtt'],
+                    "upload delay avg": data['end']['streams'][0]['sender']['mean_rtt'],
+                    "upload bytes received": data['end']['streams'][0]['receiver']['bytes'],
+                    "upload bits_per_second received": data['end']['streams'][0]['receiver']['bits_per_second'],
+                    "upload cpu host total": data['end']['cpu_utilization_percent']['host_total'],
+                    "upload cpu remote total": data['end']['cpu_utilization_percent']['remote_total'],
+                    "upload total packet": data['end']['streams'][0]['sender']['bytes'] / data['start']['tcp_mss_default']
+                }
+            #print(excel_result)
+            if i < len(excel_data):
+                for key, value in excel_result.items():
+                    if key in excel_data[i]:
+                        if isinstance(excel_data[i][key], list):
+                            excel_data[i][key].append(value)
+                        else:
+                            excel_data[i][key] = [excel_data[i][key], value]
+                    else:
+                        excel_data[i][key] = value
+            else:
+                excel_data.append(excel_result)
+    print(f"DONE GETTING DATA UPLOAD")
+
+    directory = '/home/mamad/Documents/mininetlab/result/pingupload'
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                json_files.append(os.path.join(root, file))
+
+    json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
+    for i, file in enumerate(json_files):
+        with open(file) as f:
+            sta_name = os.path.splitext(os.path.basename(file))[0]
+            print(f"Checking {f}")
+            data=[]
+            data = json.load(f)
+            try:
+                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
+                if hub_data:
+                    excel_result = {
+                        "station": sta_name,
+                        "host": hub_data['host'],
+                        "mtr upload loss": hub_data['Loss%'],
+                        "mtr upload delay avg": hub_data['Avg'],
+                        "mtr upload delay min": hub_data['Best'],
+                        "mtr upload delay max": hub_data['Wrst'],
+                        "mtr upload jitter std": hub_data['StDev']
+                    }
+                else:
+                    raise KeyError("iperfserver not found in hubs")
+                    
+            except KeyError as e:
+                excel_result = {
+                    "station": sta_name,
+                    "host": "error",
+                    "mtr upload loss": "error",
+                    "mtr upload delay avg": "error",
+                    "mtr upload delay min": "error",
+                    "mtr upload delay max": "error",
+                    "mtr upload jitter std": "error"
+                }
+            if i < len(excel_data):
+                for key, value in excel_result.items():
+                    if key in excel_data[i]:
+                        if isinstance(excel_data[i][key], list):
+                            excel_data[i][key].append(value)
+                        else:
+                            excel_data[i][key] = [excel_data[i][key], value]
+                    else:
+                        excel_data[i][key] = value
+            else:
+                excel_data.append(excel_result)
+    print(f"DONE GETTING DATA PING UPLOAD")
+
+    directory = '/home/mamad/Documents/mininetlab/result/pingdownload'
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".json"):
+                json_files.append(os.path.join(root, file))
+
+    json_files.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0][3:]))
+    for i, file in enumerate(json_files):
+        with open(file) as f:
+            sta_name = os.path.splitext(os.path.basename(file))[0]
+            print(f"Checking {f}")
+            data=[]
+            data = json.load(f)
+            data['rssi'] = sta_list[i].wintfs[0].rssi
+            try:
+                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
+                if hub_data:
+                    excel_result = {
+                        "station": sta_name,
+                        "host": hub_data['host'],
+                        "mtr download loss": hub_data['Loss%'],
+                        "mtr download delay avg": hub_data['Avg'],
+                        "mtr download delay min": hub_data['Best'],
+                        "mtr download delay max": hub_data['Wrst'],
+                        "mtr download jitter std": hub_data['StDev'],
+                        "RSSI":data['rssi']
+                    }
+                else:
+                    
+                    raise KeyError("iperfserver not found in hubs")
+            except KeyError as e:
+                excel_result = {
+                    "station": sta_name,
+                    "host": "error",
+                    "mtr download loss": "error",
+                    "mtr download delay avg": "error",
+                    "mtr download delay min": "error",
+                    "mtr download delay max": "error",
+                    "mtr download jitter std": "error",
+                    "RSSI":data['rssi']
+                }
+            if i < len(excel_data):
+                for key, value in excel_result.items():
+                    if key in excel_data[i]:
+                        if isinstance(excel_data[i][key], list):
+                            excel_data[i][key].append(value)
+                        else:
+                            excel_data[i][key] = [excel_data[i][key], value]
+                    else:
+                        excel_data[i][key] = value
+            else:
+                excel_data.append(excel_result)
+        
+    print(f"DONE GETTING DATA PING DOWNLOAD")
+    total_failed = sum(1 for data in excel_data if 'error' in data)
+    excel_data.append({"total failed": total_failed})
+    df = pd.DataFrame(excel_data)
+    output_dir = f"{xl_folder}{stanum}"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    output_file = f"{output_dir}/iperftest{stanum}_{testnum}.xlsx"
+    df.to_excel(output_file, index=False)
+
+        
 class CustomCLI(CLI):
+    def do_processdata(self, line):
+        sta_list = self.mn.stations
+        combine_iperf_results_to_excel(len(sta_list))
+
+    def do_iperf(self, line):
+        args = line.split()
+        if len(args) != 1:
+            print("Usage: iperf <num>")
+            return
+        try:
+            num = int(args[0])
+        except ValueError:
+            print("Invalid number")
+            return
+        threads = []
+        "Run iperf3 test on all stations: iperf"
+        results = [None] * len(self.mn.stations)
+        sta_list = self.mn.stations
+        
+        pidiperf = []
+        pidmtr = []
+        
+        for test in range(num):
+            print("removing previous run json...")
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
+
+            for i, sta in enumerate(sta_list):
+                sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 --json > /home/mamad/Documents/mininetlab/result/upload/{sta.name}.json &")
+                pid = sta.cmd(f"echo $!")
+                pidiperf.append((sta.name, pid))
+                print(f"Started iperf3 on {sta.name} with PID {pid}")
+                sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
+                pid2 = sta.cmd(f"echo $!")
+                pidmtr.append((sta.name, pid2))
+                print(f"Started mtr on {sta.name} with PID {pid2}")
+                time.sleep(0.1)
+            start_time = time.time()
+            while pidiperf or pidmtr:
+                current_time = time.time()
+                elapsed_time = current_time - start_time
+                if elapsed_time > timeout:
+                    print("Timeout reached. Clearing remaining processes.")
+                    '''for sta_name, pid in pidiperf:
+                        sta = self.mn.get(sta_name)
+                        if sta:
+                            sta.cmd(f"kill -9 {pid.strip()}")
+                    for sta_name, pid in pidmtr:
+                        sta = self.mn.get(sta_name)
+                        if sta:
+                            sta.cmd(f"kill -9 {pid.strip()}")'''
+                    print(pidiperf)
+                    print(pidmtr)
+                    pidiperf.clear()
+                    pidmtr.clear()
+                    break
+                for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
+                    for sta_name, pid in pid_list[:]:
+                        if not os.path.exists(f"/proc/{pid.strip()}"):
+                            print(f"{name} process on {sta_name} is done")
+                            pid_list.remove((sta_name, pid))
+                time.sleep(1)
+            print("ALL UPLOAD PROCESS DONE")
+
+            for i, sta in enumerate(sta_list):
+                sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
+                pid = sta.cmd(f"echo $!")
+                pidiperf.append((sta.name, pid))
+                print(f"Started iperf3 on {sta.name} with PID {pid}")
+                sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingdownload/{sta.name}.json &")
+                pid2 = sta.cmd(f"echo $!")
+                pidmtr.append((sta.name, pid2))
+                print(f"Started mtr on {sta.name} with PID {pid2}")
+                time.sleep(0.1)
+            start_time = time.time()
+            while pidiperf or pidmtr:
+                current_time = time.time()
+                elapsed_time = current_time - start_time
+                if elapsed_time > timeout:
+                    print("Timeout reached. Clearing remaining processes.")
+                    '''for sta_name, pid in pidiperf:
+                        sta = self.mn.get(sta_name)
+                        if sta:
+                            sta.cmd(f"kill -9 {pid.strip()}")
+                    for sta_name, pid in pidmtr:
+                        sta = self.mn.get(sta_name)
+                        if sta:
+                            sta.cmd(f"kill -9 {pid.strip()}")'''
+                    print(pidiperf)
+                    print(pidmtr)
+                    pidiperf.clear()
+                    pidmtr.clear()
+                    break
+                for pid_list, name in [(pidiperf, "iperf"), (pidmtr, "mtr")]:
+                    for sta_name, pid in pid_list[:]:
+                        if not os.path.exists(f"/proc/{pid.strip()}"):
+                            print(f"{name} process on {sta_name} is done")
+                            pid_list.remove((sta_name, pid))
+                time.sleep(1)
+
+            print("ALL DOWNLOAD PROCESS DONE")
+            '''sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/upload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/download && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
+            sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
+            print("generating report...")
+            combine_iperf_results_to_excel(len(sta_list), test, sta_list)
+
+        
+
+
+
+
+
     def do_pinghost(self, line):
         "Ping test: pinghost <host1> <host2>"
         args = line.split()
@@ -356,7 +754,9 @@ class CustomCLI(CLI):
                 print(arg)
 
     
+
     
+
 
     def do_speedtest(self, line):
         sta_list = self.mn.stations
@@ -562,7 +962,7 @@ def topology():
         for sta_name in sta_list:
             ap_position = aps[i].position
             sta_position = generate_random_position(ap_position, radius)
-            mac_address = f'10:05:03:ff:{i:02x}:{len(stations):02x}'
+            mac_address = f'02:02:02:ff:{i:02x}:{len(stations):02x}'
             sta = net.addStation(sta_name, ip='0.0.0.0', position=sta_position, mode="n", channel="36", mac=mac_address)
             stations.append(sta)
             print(f"Added {sta_name} at position {sta_position} with MAC {mac_address}")
