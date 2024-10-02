@@ -18,7 +18,7 @@ from threading import Thread
 import pandas as pd
 import os
 timeout = 30
-iperfserver = '143.198.143.170'
+iperfserver = '2b2t.my.id'
 gateway = "192.168.1.1"
 adapter = 'virbr1'
 xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
@@ -646,11 +646,11 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
 
             for i, sta in enumerate(sta_list):
-                sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 --json > /home/mamad/Documents/mininetlab/result/upload/{sta.name}.json &")
+                sta.cmd(f"iperf3 -c {iperfserver} -b 0 -p {5201+i} -t 10 --json > /home/mamad/Documents/mininetlab/result/upload/{sta.name}.json &")
                 pid = sta.cmd(f"echo $!")
                 pidiperf.append((sta.name, pid))
                 print(f"Started iperf3 on {sta.name} with PID {pid}")
-                sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
+                sta.cmd(f"mtr -c 50 -i 0.1 {iperfserver} -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
                 pid2 = sta.cmd(f"echo $!")
                 pidmtr.append((sta.name, pid2))
                 print(f"Started mtr on {sta.name} with PID {pid2}")
@@ -683,11 +683,11 @@ class CustomCLI(CLI):
             print("ALL UPLOAD PROCESS DONE")
 
             for i, sta in enumerate(sta_list):
-                sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
+                sta.cmd(f"iperf3 -c {iperfserver} -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
                 pid = sta.cmd(f"echo $!")
                 pidiperf.append((sta.name, pid))
                 print(f"Started iperf3 on {sta.name} with PID {pid}")
-                sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingdownload/{sta.name}.json &")
+                sta.cmd(f"mtr -c 50 -i 0.1 {iperfserver} -j > /home/mamad/Documents/mininetlab/result/pingdownload/{sta.name}.json &")
                 pid2 = sta.cmd(f"echo $!")
                 pidmtr.append((sta.name, pid2))
                 print(f"Started mtr on {sta.name} with PID {pid2}")
