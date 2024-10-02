@@ -565,6 +565,10 @@ def combine_iperf_results_to_excel(stanum, testnum, sta_list):
             data=[]
             data = json.load(f)
             data['rssi'] = sta_list[i].wintfs[0].rssi
+            ip_output = sta_list[i].cmd('hostname -I')
+            ip_list = ip_output.split()
+            ipv4_list = [ip for ip in ip_list if ':' not in ip]
+            data['ip']=ipv4_list[0]
             try:
                 hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
                 if hub_data:
@@ -576,7 +580,9 @@ def combine_iperf_results_to_excel(stanum, testnum, sta_list):
                         "mtr download delay min": hub_data['Best'],
                         "mtr download delay max": hub_data['Wrst'],
                         "mtr download jitter std": hub_data['StDev'],
-                        "RSSI":data['rssi']
+                        "RSSI":data['rssi'],
+                        "IP":data['ip']
+                        
                     }
                 else:
                     
@@ -590,7 +596,8 @@ def combine_iperf_results_to_excel(stanum, testnum, sta_list):
                     "mtr download delay min": "error",
                     "mtr download delay max": "error",
                     "mtr download jitter std": "error",
-                    "RSSI":data['rssi']
+                    "RSSI":data['rssi'],
+                    "IP":data['ip']
                 }
             if i < len(excel_data):
                 for key, value in excel_result.items():
