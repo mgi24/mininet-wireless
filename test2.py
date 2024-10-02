@@ -346,7 +346,7 @@ def run_general(sta,resultfolder, command):
         print(result)
 
 
-def combine_iperf_results_to_excel(stanum, testnum, sta_list):
+def combine_iperf_results_to_excel(stanum, big_array, sta_list):
     directory = '/home/mamad/Documents/mininetlab/result/download'
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -610,16 +610,8 @@ def combine_iperf_results_to_excel(stanum, testnum, sta_list):
                         excel_data[i][key] = value
             else:
                 excel_data.append(excel_result)
-        
-    print(f"DONE GETTING DATA PING DOWNLOAD")
-    total_failed = sum(1 for data in excel_data if 'error' in data)
-    excel_data.append({"total failed": total_failed})
-    df = pd.DataFrame(excel_data)
-    output_dir = f"{xl_folder}{stanum}"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    output_file = f"{output_dir}/iperftest{stanum}_{testnum}.xlsx"
-    df.to_excel(output_file, index=False)
+    big_array.append(excel_data)
+            
 
         
 class CustomCLI(CLI):
@@ -644,6 +636,7 @@ class CustomCLI(CLI):
         
         pidiperf = []
         pidmtr = []
+        excel_data = []
         
         for test in range(num):
             print("removing previous run json...")
@@ -731,7 +724,17 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
             print("generating report...")
-            combine_iperf_results_to_excel(len(sta_list), test, sta_list)
+            combine_iperf_results_to_excel(len(sta_list), excel_data, sta_list)
+            print(f"DONE GETTING DATA PING DOWNLOAD")
+
+        total_failed = sum(1 for data in excel_data if 'error' in data)
+        excel_data.append({"total failed": total_failed})
+        df = pd.DataFrame(excel_data)
+        output_dir = f"{xl_folder}{len(sta_list)}"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        output_file = f"{output_dir}/iperftest{len(sta_list)}.xlsx"
+        df.to_excel(output_file, index=False)
 
         
 
