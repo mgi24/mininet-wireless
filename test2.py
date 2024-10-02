@@ -346,7 +346,7 @@ def run_general(sta,resultfolder, command):
         print(result)
 
 
-def combine_iperf_results_to_excel(stanum, testnum):
+def combine_iperf_results_to_excel(stanum, testnum, sta_list):
     directory = '/home/mamad/Documents/mininetlab/result/download'
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -564,6 +564,7 @@ def combine_iperf_results_to_excel(stanum, testnum):
             print(f"Checking {f}")
             data=[]
             data = json.load(f)
+            data['rssi'] = sta_list[i].wintfs[0].rssi
             try:
                 hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
                 if hub_data:
@@ -574,7 +575,8 @@ def combine_iperf_results_to_excel(stanum, testnum):
                         "mtr download delay avg": hub_data['Avg'],
                         "mtr download delay min": hub_data['Best'],
                         "mtr download delay max": hub_data['Wrst'],
-                        "mtr download jitter std": hub_data['StDev']
+                        "mtr download jitter std": hub_data['StDev'],
+                        "RSSI":data['rssi']
                     }
                 else:
                     
@@ -587,7 +589,8 @@ def combine_iperf_results_to_excel(stanum, testnum):
                     "mtr download delay avg": "error",
                     "mtr download delay min": "error",
                     "mtr download delay max": "error",
-                    "mtr download jitter std": "error"
+                    "mtr download jitter std": "error",
+                    "RSSI":data['rssi']
                 }
             if i < len(excel_data):
                 for key, value in excel_result.items():
@@ -721,7 +724,7 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
             print("generating report...")
-            combine_iperf_results_to_excel(len(sta_list), test)
+            combine_iperf_results_to_excel(len(sta_list), test, sta_list)
 
         
 
