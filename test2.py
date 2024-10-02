@@ -610,7 +610,7 @@ def combine_iperf_results_to_excel(stanum, big_array, sta_list):
                         excel_data[i][key] = value
             else:
                 excel_data.append(excel_result)
-    big_array.append(excel_data)
+    big_array.extend(excel_data)
             
 
         
