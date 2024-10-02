@@ -513,7 +513,7 @@ def combine_iperf_results_to_excel(stanum, big_array, sta_list):
             data=[]
             data = json.load(f)
             try:
-                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
+                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == "143.198.143.170"), None)
                 if hub_data:
                     excel_result = {
                         "station": sta_name,
@@ -570,7 +570,7 @@ def combine_iperf_results_to_excel(stanum, big_array, sta_list):
             ipv4_list = [ip for ip in ip_list if ':' not in ip]
             data['ip']=ipv4_list[0]
             try:
-                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
+                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == "143.198.143.170"), None)
                 if hub_data:
                     excel_result = {
                         "station": sta_name,
