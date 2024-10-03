@@ -18,10 +18,10 @@ from threading import Thread
 import pandas as pd
 import os
 timeout = 30
-iperfserver = '143.198.143.170'
-gateway = "192.168.1.1"
+iperfserver = '2b2t.my.id'
+gateway = "192.168.2.1"
 adapter = 'virbr1'
-xl_folder = '/home/mamad/Documents/mininetlab/helmi/'
+xl_folder = '/home/mamad/Documents/mininetlab/pf/'
 servers = [
                 [41848, "Global Media Data Prima"],
                 [13825, "GMEDIA"],
@@ -346,7 +346,7 @@ def run_general(sta,resultfolder, command):
         print(result)
 
 
-def combine_iperf_results_to_excel(stanum, testnum, sta_list):
+def combine_iperf_results_to_excel(stanum, big_array, sta_list):
     directory = '/home/mamad/Documents/mininetlab/result/download'
     json_files = []
     for root, dirs, files in os.walk(directory):
@@ -513,7 +513,7 @@ def combine_iperf_results_to_excel(stanum, testnum, sta_list):
             data=[]
             data = json.load(f)
             try:
-                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
+                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == "143.198.143.170"), None)
                 if hub_data:
                     excel_result = {
                         "station": sta_name,
@@ -570,7 +570,7 @@ def combine_iperf_results_to_excel(stanum, testnum, sta_list):
             ipv4_list = [ip for ip in ip_list if ':' not in ip]
             data['ip']=ipv4_list[0]
             try:
-                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == iperfserver), None)
+                hub_data = next((hub for hub in data['report']['hubs'] if hub['host'] == "143.198.143.170"), None)
                 if hub_data:
                     excel_result = {
                         "station": sta_name,
@@ -610,16 +610,8 @@ def combine_iperf_results_to_excel(stanum, testnum, sta_list):
                         excel_data[i][key] = value
             else:
                 excel_data.append(excel_result)
-        
-    print(f"DONE GETTING DATA PING DOWNLOAD")
-    total_failed = sum(1 for data in excel_data if 'error' in data)
-    excel_data.append({"total failed": total_failed})
-    df = pd.DataFrame(excel_data)
-    output_dir = f"{xl_folder}{stanum}"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    output_file = f"{output_dir}/iperftest{stanum}_{testnum}.xlsx"
-    df.to_excel(output_file, index=False)
+    big_array.extend(excel_data)
+            
 
         
 class CustomCLI(CLI):
@@ -644,6 +636,7 @@ class CustomCLI(CLI):
         
         pidiperf = []
         pidmtr = []
+        excel_data = []
         
         for test in range(num):
             print("removing previous run json...")
@@ -653,11 +646,11 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')
 
             for i, sta in enumerate(sta_list):
-                sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 --json > /home/mamad/Documents/mininetlab/result/upload/{sta.name}.json &")
+                sta.cmd(f"iperf3 -c {iperfserver} -b 0 -p {5201+i} -t 10 --json > /home/mamad/Documents/mininetlab/result/upload/{sta.name}.json &")
                 pid = sta.cmd(f"echo $!")
                 pidiperf.append((sta.name, pid))
                 print(f"Started iperf3 on {sta.name} with PID {pid}")
-                sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
+                sta.cmd(f"mtr -c 50 -i 0.1 {iperfserver} -j > /home/mamad/Documents/mininetlab/result/pingupload/{sta.name}.json &")
                 pid2 = sta.cmd(f"echo $!")
                 pidmtr.append((sta.name, pid2))
                 print(f"Started mtr on {sta.name} with PID {pid2}")
@@ -690,11 +683,11 @@ class CustomCLI(CLI):
             print("ALL UPLOAD PROCESS DONE")
 
             for i, sta in enumerate(sta_list):
-                sta.cmd(f"iperf3 -c 143.198.143.170 -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
+                sta.cmd(f"iperf3 -c {iperfserver} -b 0 -p {5201+i} -t 10 -R --json > /home/mamad/Documents/mininetlab/result/download/{sta.name}.json &")
                 pid = sta.cmd(f"echo $!")
                 pidiperf.append((sta.name, pid))
                 print(f"Started iperf3 on {sta.name} with PID {pid}")
-                sta.cmd(f"mtr -c 50 -i 0.1 143.198.143.170 -j > /home/mamad/Documents/mininetlab/result/pingdownload/{sta.name}.json &")
+                sta.cmd(f"mtr -c 50 -i 0.1 {iperfserver} -j > /home/mamad/Documents/mininetlab/result/pingdownload/{sta.name}.json &")
                 pid2 = sta.cmd(f"echo $!")
                 pidmtr.append((sta.name, pid2))
                 print(f"Started mtr on {sta.name} with PID {pid2}")
@@ -731,7 +724,17 @@ class CustomCLI(CLI):
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingdownload && rm -f *')
             sta_list[0].cmd('cd /home/mamad/Documents/mininetlab/result/pingupload && rm -f *')'''
             print("generating report...")
-            combine_iperf_results_to_excel(len(sta_list), test, sta_list)
+            combine_iperf_results_to_excel(len(sta_list), excel_data, sta_list)
+            print(f"DONE GETTING DATA PING DOWNLOAD")
+
+        total_failed = sum(1 for data in excel_data if 'error' in data)
+        excel_data.append({"total failed": total_failed})
+        df = pd.DataFrame(excel_data)
+        output_dir = f"{xl_folder}{len(sta_list)}"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        output_file = f"{output_dir}/iperftest{len(sta_list)}.xlsx"
+        df.to_excel(output_file, index=False)
 
         
 
