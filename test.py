@@ -654,7 +654,7 @@ class CustomCLI(CLI):
                 pid2 = sta.cmd(f"echo $!")
                 pidmtr.append((sta.name, pid2))
                 print(f"Started mtr on {sta.name} with PID {pid2}")
-                time.sleep(0.1)
+                #time.sleep(0.1)
             start_time = time.time()
             while pidiperf or pidmtr:
                 current_time = time.time()
@@ -691,7 +691,7 @@ class CustomCLI(CLI):
                 pid2 = sta.cmd(f"echo $!")
                 pidmtr.append((sta.name, pid2))
                 print(f"Started mtr on {sta.name} with PID {pid2}")
-                time.sleep(0.1)
+                #time.sleep(0.1)
             start_time = time.time()
             while pidiperf or pidmtr:
                 current_time = time.time()
